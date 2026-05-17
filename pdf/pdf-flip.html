@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide Book</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+/* ============================================================
+   🎨 BRANDING — Edit di sini saja
+   ============================================================ */
+:root {
+  --brand-primary:   #0A6E4E;
+  --brand-p2:        #0D8F65;
+  --brand-accent:    #D4A847;
+  --sidebar-bg:      #0B1C16;
+
+  --bg:              #0f1117;
+  --surface:         #1a1e2a;
+  --border:          rgba(255,255,255,.08);
+  --text:            #ffffff;
+  --text-muted:      rgba(255,255,255,.45);
+
+  --radius-sm:       8px;
+  --radius-md:       12px;
+  --radius-lg:       18px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+.topbar {
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Logo: swap isi .logo-inner untuk gambar/ikon */
+.logo-box {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-p2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 2px 10px rgba(10,110,78,.35);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); }
+
+.brand-text { line-height: 1.2; }
+.brand-name { font-weight: 800; font-size: 14px; }
+.brand-sub  { font-size: 10.5px; color: var(--text-muted); font-weight: 600; }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+.btn-dl {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-p2));
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 10px rgba(10,110,78,.3);
+  transition: opacity .15s, transform .15s;
+  white-space: nowrap;
+}
+.btn-dl:hover  { opacity: .9; transform: translateY(-1px); }
+.btn-dl:active { transform: scale(.97); }
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-p2));
+  border-radius: 0 2px 2px 0;
+  transition: width .3s ease;
+  width: 0%;
+}
+
+/* ============================================================
+   MAIN VIEWER
+   ============================================================ */
+.viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 28px 16px 16px;
+  gap: 20px;
+}
+
+/* ============================================================
+   BOOK STAGE (Desktop = 2 halaman, Mobile = 1 halaman)
+   ============================================================ */
+.book-stage {
+  width: 100%;
+  max-width: 960px;
+  position: relative;
+}
+
+/* 3D perspective */
+.book-wrap {
+  perspective: 2400px;
+  width: 100%;
+}
+
+/* DESKTOP: grid 2 kolom */
+.book {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* Book shadow */
+.book::before {
+  content: '';
+  position: absolute;
+  bottom: -18px; left: 5%; right: 5%;
+  height: 24px;
+  background: rgba(0,0,0,.5);
+  filter: blur(16px);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* Spine */
+.book::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  background: linear-gradient(90deg,
+    rgba(0,0,0,.35) 0%,
+    rgba(0,0,0,.08) 50%,
+    rgba(0,0,0,.35) 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Each page panel */
+.page-panel {
+  background: #1e2230;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.page-panel canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+}
+
+.page-panel.left  { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.page-panel.right { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+
+/* Page number */
+.pg-num {
+  position: absolute;
+  bottom: 10px;
+  font-size: 11px;
+  color: rgba(255,255,255,.2);
+  font-weight: 700;
+  letter-spacing: .5px;
+  pointer-events: none;
+}
+.page-panel.left  .pg-num { left: 14px; }
+.page-panel.right .pg-num { right: 14px; }
+
+/* Page curl (desktop right page only) */
+.page-panel.right::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 24px; height: 24px;
+  background: linear-gradient(225deg, rgba(255,255,255,.06) 50%, transparent 50%);
+  border-radius: 0 0 var(--radius-md) 0;
+  pointer-events: none;
+}
+
+/* MOBILE: single column */
+@media (max-width: 640px) {
+  .book {
+    grid-template-columns: 1fr;
+  }
+
+  /* Hide left page on mobile — show only current page */
+  .page-panel.left  { display: none; }
+  .page-panel.right { border-radius: var(--radius-md); }
+  .page-panel.right::after { display: none; }
+
+  /* Hide spine on mobile */
+  .book::after { display: none; }
+}
+
+/* ============================================================
+   FLIP ANIMATION
+   ============================================================ */
+.flip-overlay {
+  position: absolute;
+  top: 0; right: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  z-index: 20;
+  pointer-events: none;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  overflow: hidden;
+  display: none;
+  background: #1e2230;
+}
+
+/* Mobile: full width flip */
+@media (max-width: 640px) {
+  .flip-overlay {
+    width: 100%;
+    border-radius: var(--radius-md);
+    transform-origin: center center;
+  }
+}
+
+@keyframes flipFwd {
+  0%   { transform: rotateY(0deg);    opacity: 1; box-shadow:  0 0 0 rgba(0,0,0,0); }
+  30%  { box-shadow: -16px 0 32px rgba(0,0,0,.3); }
+  100% { transform: rotateY(-160deg); opacity: 0; box-shadow:  0 0 0 rgba(0,0,0,0); }
+}
+@keyframes flipBwd {
+  0%   { transform: rotateY(-160deg); opacity: 0; }
+  100% { transform: rotateY(0deg);    opacity: 1; }
+}
+@keyframes slideFwd {
+  0%   { transform: translateX(0%);   opacity: 1; }
+  100% { transform: translateX(-100%);opacity: 0; }
+}
+@keyframes slideBwd {
+  0%   { transform: translateX(-100%);opacity: 0; }
+  100% { transform: translateX(0%);   opacity: 1; }
+}
+
+.flip-overlay.anim-fwd { display: block; animation: flipFwd .5s cubic-bezier(.4,0,.2,1) forwards; }
+.flip-overlay.anim-bwd { display: block; animation: flipBwd .5s cubic-bezier(.4,0,.2,1) forwards; }
+
+@media (max-width: 640px) {
+  .flip-overlay.anim-fwd { animation: slideFwd .3s ease forwards; }
+  .flip-overlay.anim-bwd { animation: slideBwd .3s ease forwards; }
+}
+
+/* ============================================================
+   LOADING SPINNER
+   ============================================================ */
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(255,255,255,.1);
+  border-top-color: var(--brand-p2);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   CONTROLS
+   ============================================================ */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-nav {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.6);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.btn-nav:hover:not(:disabled) {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border-color: rgba(255,255,255,.25);
+}
+
+.btn-nav:disabled { opacity: .25; cursor: not-allowed; }
+
+/* Make nav buttons bigger on mobile */
+@media (max-width: 640px) {
+  .btn-nav { width: 46px; height: 46px; font-size: 20px; }
+}
+
+.page-info {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 90px;
+  text-align: center;
+  letter-spacing: .3px;
+}
+
+/* ============================================================
+   THUMBNAIL STRIP
+   ============================================================ */
+.thumb-wrap {
+  width: 100%;
+  max-width: 960px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px;
+}
+
+.thumb-wrap::-webkit-scrollbar { height: 3px; }
+.thumb-wrap::-webkit-scrollbar-track { background: transparent; }
+.thumb-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+
+.thumb-strip {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+}
+
+.thumb {
+  width: 52px; height: 70px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+  transition: border-color .15s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.thumb:hover { transform: translateY(-2px); }
+.thumb.active { border-color: var(--brand-p2); }
+.thumb canvas { width: 100% !important; height: auto !important; }
+.thumb.loading { opacity: .4; }
+
+/* ============================================================
+   SWIPE HINT (mobile only)
+   ============================================================ */
+.swipe-hint {
+  display: none;
+  font-size: 11px;
+  color: rgba(255,255,255,.2);
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: .3px;
+  padding-bottom: 8px;
+}
+
+@media (max-width: 640px) {
+  .swipe-hint { display: block; }
+}
+
+/* ============================================================
+   ERROR / EMPTY STATE
+   ============================================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.empty-state .es-icon { font-size: 48px; opacity: .4; }
+.empty-state h3 { font-size: 16px; font-weight: 700; color: rgba(255,255,255,.6); }
+.empty-state p  { font-size: 13px; font-weight: 500; max-width: 320px; line-height: 1.6; }
+.empty-state code {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--brand-p2);
+  display: block;
+  margin-top: 8px;
+  word-break: break-all;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     TOP BAR
+══════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="brand">
+    <div class="logo-box">
+      <!--
+        GANTI LOGO:
+        Opsi 1 (emoji)  : hapus <img>, tulis teks/emoji langsung
+        Opsi 2 (gambar) : <img src="assets/logo.png" alt="logo">
+      -->
+      <span style="font-size:17px">🕌</span>
+    </div>
+    <div class="brand-text">
+      <div class="brand-name" id="brandName">Panduan Santri</div>
+      <div class="brand-sub"  id="brandSub">Pondok Modern Darussalam Gontor</div>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn-dl" id="btnDl" onclick="downloadPDF()" style="display:none">
+      <span>⬇</span> <span id="dlLabel">Unduh PDF</span>
+    </button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <div class="progress-fill" id="progFill"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN VIEWER
+══════════════════════════════════════════════ -->
+<div class="viewer" id="viewer">
+
+  <!-- Empty state (default) -->
+  <div class="empty-state" id="emptyState">
+    <span class="es-icon">📄</span>
+    <h3>Memuat Guide Book…</h3>
+    <p>Pastikan file PDF sudah ditempatkan sesuai konfigurasi:</p>
+    <code id="pdfPathDisplay"></code>
+  </div>
+
+  <!-- Book stage (hidden until PDF loaded) -->
+  <div class="book-stage" id="bookStage" style="display:none">
+    <div class="book-wrap">
+      <div class="book" id="book">
+
+        <!-- LEFT PAGE (hidden on mobile) -->
+        <div class="page-panel left" id="pageLeft">
+          <div class="spinner" id="spinL"></div>
+          <span class="pg-num" id="numL"></span>
+        </div>
+
+        <!-- RIGHT PAGE (always visible) -->
+        <div class="page-panel right" id="pageRight">
+          <div class="spinner" id="spinR"></div>
+          <span class="pg-num" id="numR"></span>
+        </div>
+
+        <!-- Flip overlay -->
+        <div class="flip-overlay" id="flipOverlay"></div>
+
+      </div><!-- /book -->
+    </div><!-- /book-wrap -->
+  </div><!-- /book-stage -->
+
+  <!-- Controls -->
+  <div class="controls" id="controls" style="display:none">
+    <button class="btn-nav" id="btnFirst" onclick="goFirst()" title="Halaman pertama">⟨⟨</button>
+    <button class="btn-nav" id="btnPrev"  onclick="goPrev()"  title="Sebelumnya">‹</button>
+    <div class="page-info"  id="pageInfo">—</div>
+    <button class="btn-nav" id="btnNext"  onclick="goNext()"  title="Selanjutnya">›</button>
+    <button class="btn-nav" id="btnLast"  onclick="goLast()"  title="Halaman terakhir">⟩⟩</button>
+  </div>
+
+  <!-- Thumbnail strip -->
+  <div class="thumb-wrap" id="thumbWrap" style="display:none">
+    <div class="thumb-strip" id="thumbStrip"></div>
+  </div>
+
+  <!-- Swipe hint -->
+  <div class="swipe-hint">← geser untuk berpindah halaman →</div>
+
+</div><!-- /viewer -->
+
+<!-- ══════════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════════ -->
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ══════════════════════════════════════════════
+   ⚙️  KONFIGURASI — Edit bagian ini saja
+══════════════════════════════════════════════ */
+const CONFIG = {
+  // Path ke file PDF (relatif dari lokasi HTML ini, atau URL absolut)
+  // Contoh: "pdf/panduan-santri.pdf"
+  // Contoh: "https://example.com/files/panduan.pdf"
+  pdfPath: "pdf/panduan.pdf",
+
+  // Nama brand & sub-judul (sinkron dengan topbar)
+  brandName: "Panduan Santri",
+  brandSub:  "Pondok Modern Darussalam Gontor",
+
+  // Nama file saat diunduh
+  downloadName: "panduan-santri-gontor.pdf",
+
+  // Warna utama (opsional — atau edit CSS :root di atas)
+  // colorPrimary: "#0A6E4E",
+};
+/* ════════════════════════════════════════════ */
+
+/* Apply config text */
+document.getElementById('brandName').textContent = CONFIG.brandName;
+document.getElementById('brandSub').textContent  = CONFIG.brandSub;
+document.getElementById('pdfPathDisplay').textContent = CONFIG.pdfPath;
+document.title = CONFIG.brandName;
+
+/* ── State ── */
+let pdfDoc     = null;
+let totalPages = 0;
+let current    = 0;   // current spread index (desktop) or page index (mobile)
+let animating  = false;
+let pdfRawUrl  = null;
+const isMobile = () => window.innerWidth <= 640;
+
+/* ── Init ── */
+async function init() {
+  try {
+    const loadTask = pdfjsLib.getDocument(CONFIG.pdfPath);
+    pdfDoc    = await loadTask.promise;
+    totalPages= pdfDoc.numPages;
+    pdfRawUrl = CONFIG.pdfPath;
+
+    document.getElementById('emptyState').style.display  = 'none';
+    document.getElementById('bookStage').style.display   = 'block';
+    document.getElementById('controls').style.display    = 'flex';
+    document.getElementById('thumbWrap').style.display   = 'block';
+    document.getElementById('btnDl').style.display       = 'flex';
+
+    await buildThumbs();
+    await renderCurrent(false);
+  } catch (err) {
+    showError(err);
+  }
+}
+
+/* ── Render current position ── */
+async function renderCurrent(animate, dir = 'fwd') {
+  if (animating) return;
+  const mobile = isMobile();
+
+  if (mobile) {
+    /* Mobile: show single page = current (0-based page index) */
+    await renderMobile(current, animate, dir);
+  } else {
+    /* Desktop: show spread (left = even page, right = odd page) */
+    await renderDesktop(current, animate, dir);
+  }
+
+  updateUI();
+}
+
+/* ── Desktop: render 2-page spread ── */
+async function renderDesktop(spreadIdx, animate, dir) {
+  const leftPageNum  = spreadIdx * 2 + 1;
+  const rightPageNum = spreadIdx * 2 + 2;
+
+  if (animate) {
+    animating = true;
+    const overlay   = document.getElementById('flipOverlay');
+    const curRight  = document.getElementById('pageRight');
+
+    /* Snapshot current right page into overlay */
+    overlay.innerHTML = curRight.innerHTML;
+    overlay.style.cssText = '';
+    overlay.className     = 'flip-overlay';
+    void overlay.offsetWidth;
+    overlay.classList.add(dir === 'fwd' ? 'anim-fwd' : 'anim-bwd');
+
+    /* Render new pages behind the animation */
+    setTimeout(async () => {
+      await Promise.all([
+        renderPageInto(leftPageNum,  'pageLeft',  'numL'),
+        renderPageInto(rightPageNum, 'pageRight', 'numR'),
+      ]);
+    }, 160);
+
+    await sleep(520);
+    overlay.className = 'flip-overlay';
+    overlay.style.display = 'none';
+    animating = false;
+  } else {
+    await Promise.all([
+      renderPageInto(leftPageNum,  'pageLeft',  'numL'),
+      renderPageInto(rightPageNum, 'pageRight', 'numR'),
+    ]);
+  }
+}
+
+/* ── Mobile: render single page ── */
+async function renderMobile(pageIdx, animate, dir) {
+  const pageNum = pageIdx + 1; // 1-based
+
+  if (animate) {
+    animating = true;
+    const overlay  = document.getElementById('flipOverlay');
+    const curRight = document.getElementById('pageRight');
+
+    overlay.innerHTML = curRight.innerHTML;
+    overlay.style.cssText = '';
+    overlay.className = 'flip-overlay';
+    void overlay.offsetWidth;
+    overlay.classList.add(dir === 'fwd' ? 'anim-fwd' : 'anim-bwd');
+
+    setTimeout(async () => {
+      await renderPageInto(pageNum, 'pageRight', 'numR');
+    }, 120);
+
+    await sleep(340);
+    overlay.className = 'flip-overlay';
+    overlay.style.display = 'none';
+    animating = false;
+  } else {
+    await renderPageInto(pageNum, 'pageRight', 'numR');
+  }
+}
+
+/* ── Render a PDF page into a container ── */
+async function renderPageInto(pageNum, containerId, numId) {
+  const container = document.getElementById(containerId);
+  const numEl     = document.getElementById(numId);
+
+  if (pageNum < 1 || pageNum > totalPages) {
+    container.innerHTML = '';
+    const blank = document.createElement('div');
+    blank.style.cssText = 'min-height:400px;width:100%';
+    container.appendChild(blank);
+    if (numEl) numEl.textContent = '';
+    return;
+  }
+
+  /* Show spinner */
+  container.innerHTML = '<div class="spinner"></div>';
+
+  const page = await pdfDoc.getPage(pageNum);
+  const scale = getScale(container);
+  const vp    = page.getViewport({ scale });
+
+  const canvas  = document.createElement('canvas');
+  canvas.width  = vp.width;
+  canvas.height = vp.height;
+  canvas.style.cssText = 'width:100%;height:auto;display:block;border-radius:inherit';
+
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+
+  container.innerHTML = '';
+  container.appendChild(canvas);
+  if (numEl) numEl.textContent = pageNum;
+}
+
+/* ── Scale based on container width ── */
+function getScale(container) {
+  const w = container.offsetWidth || window.innerWidth;
+  return Math.max(1.2, Math.min(2.5, w / 300));
+}
+
+/* ── Navigation ── */
+function totalItems() {
+  return isMobile() ? totalPages : Math.ceil(totalPages / 2);
+}
+
+async function goNext() {
+  if (!animating && current < totalItems() - 1) {
+    current++;
+    await renderCurrent(true, 'fwd');
+  }
+}
+
+async function goPrev() {
+  if (!animating && current > 0) {
+    current--;
+    await renderCurrent(true, 'bwd');
+  }
+}
+
+async function goFirst() { current = 0; await renderCurrent(false); }
+async function goLast()  { current = totalItems() - 1; await renderCurrent(false); }
+
+async function goToIndex(idx, animate = true) {
+  if (idx === current || animating) return;
+  const dir = idx > current ? 'fwd' : 'bwd';
+  current = idx;
+  await renderCurrent(animate ? true : false, dir);
+}
+
+/* ── Update UI ── */
+function updateUI() {
+  const mobile = isMobile();
+  const total  = totalItems();
+
+  let label;
+  if (mobile) {
+    label = `${current + 1} / ${totalPages}`;
+  } else {
+    const lp = current * 2 + 1;
+    const rp = Math.min(current * 2 + 2, totalPages);
+    label = lp === rp ? `${lp} / ${totalPages}` : `${lp}–${rp} / ${totalPages}`;
+  }
+
+  document.getElementById('pageInfo').textContent = label;
+  document.getElementById('progFill').style.width = ((current + 1) / total * 100) + '%';
+  document.getElementById('btnPrev').disabled  = current === 0;
+  document.getElementById('btnFirst').disabled = current === 0;
+  document.getElementById('btnNext').disabled  = current >= total - 1;
+  document.getElementById('btnLast').disabled  = current >= total - 1;
+
+  /* Highlight active thumb */
+  document.querySelectorAll('.thumb').forEach((t, i) => {
+    t.classList.toggle('active', i === current);
+  });
+
+  /* Auto-scroll thumb into view */
+  const activeThumb = document.querySelector('.thumb.active');
+  if (activeThumb) {
+    activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+}
+
+/* ── Build thumbnail strip ── */
+async function buildThumbs() {
+  const strip = document.getElementById('thumbStrip');
+  strip.innerHTML = '';
+  const total = totalItems();
+
+  for (let i = 0; i < total; i++) {
+    const div = document.createElement('div');
+    div.className = 'thumb loading';
+    div.dataset.idx = i;
+    div.onclick = () => goToIndex(i);
+    strip.appendChild(div);
+
+    /* Render thumb lazily */
+    const pageNum = isMobile() ? i + 1 : i * 2 + 1;
+    renderThumb(pageNum, div);
+  }
+}
+
+async function renderThumb(pageNum, container) {
+  try {
+    const page = await pdfDoc.getPage(pageNum);
+    const vp   = page.getViewport({ scale: 0.25 });
+    const c    = document.createElement('canvas');
+    c.width    = vp.width;
+    c.height   = vp.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    c.style.cssText = 'width:100%;height:auto;display:block';
+    container.innerHTML = '';
+    container.appendChild(c);
+    container.classList.remove('loading');
+  } catch {}
+}
+
+/* ── Download ── */
+function downloadPDF() {
+  if (!pdfRawUrl) return;
+  const a = document.createElement('a');
+  a.href     = pdfRawUrl;
+  a.download = CONFIG.downloadName;
+  a.target   = '_blank';
+  a.click();
+}
+
+/* ── Error state ── */
+function showError(err) {
+  const es = document.getElementById('emptyState');
+  es.querySelector('h3').textContent = 'Gagal memuat PDF';
+  es.querySelector('p').textContent  = 'Periksa path file atau pastikan server sudah berjalan. Error: ' + err.message;
+}
+
+/* ── Keyboard navigation ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  goNext();
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    goPrev();
+  if (e.key === 'Home') goFirst();
+  if (e.key === 'End')  goLast();
+});
+
+/* ── Touch/Swipe navigation ── */
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) {
+    if (dx < 0) goNext();
+    else        goPrev();
+  }
+}, { passive: true });
+
+/* ── Re-render on resize (mobile ↔ desktop switch) ── */
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(async () => {
+    if (!pdfDoc) return;
+    /* Re-adjust current index on mode switch */
+    const mobile = isMobile();
+    if (!mobile && current >= Math.ceil(totalPages / 2)) {
+      current = Math.ceil(totalPages / 2) - 1;
+    }
+    await buildThumbs();
+    await renderCurrent(false);
+  }, 200);
+});
+
+/* ── Helpers ── */
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ── Kick off ── */
+init();
+</script>
+</body>
+</html>

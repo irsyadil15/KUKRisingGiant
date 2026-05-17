@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo B – HTML Book + Generate PDF</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --brand-primary:#0A6E4E;
+  --brand-p2:#0D8F65;
+  --brand-accent:#D4A847;
+  --page-bg:#FAFAF7;
+  --page-text:#1A2419;
+  --page-muted:#6B7C6A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f1117;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px;color:#fff}
+
+/* ── TOP BAR ── */
+.topbar{width:100%;max-width:940px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.logo-box{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--brand-primary),var(--brand-p2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 12px rgba(10,110,78,.4)}
+.topbar-brand strong{font-size:16px;font-weight:800}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.btn-dl{background:linear-gradient(135deg,var(--brand-primary),var(--brand-p2));color:#fff;border:none;padding:10px 20px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(10,110,78,.35);transition:opacity .15s,transform .15s}
+.btn-dl:hover{opacity:.9;transform:translateY(-1px)}
+.btn-dl:disabled{opacity:.5;cursor:wait}
+
+/* ── SCENE ── */
+.scene{perspective:2200px;width:100%;max-width:920px}
+
+/* ── BOOK ── */
+.book{
+  width:100%;display:grid;grid-template-columns:1fr 1fr;
+  position:relative;
+}
+
+/* Book shadow */
+.book::before{content:'';position:absolute;bottom:-16px;left:5%;width:90%;height:20px;background:rgba(0,0,0,.4);filter:blur(16px);border-radius:50%;z-index:-1}
+
+/* Spine */
+.book::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:18px;height:100%;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(0,0,0,.05),rgba(0,0,0,.3));z-index:10;pointer-events:none}
+
+/* ── PAGES ── */
+.page{
+  background:var(--page-bg);
+  min-height:580px;
+  padding:44px 40px;
+  position:relative;
+  overflow:hidden;
+  color:var(--page-text);
+}
+
+.page-l{
+  border-radius:12px 0 0 12px;
+  box-shadow:-12px 0 40px rgba(0,0,0,.5);
+}
+
+.page-r{
+  border-radius:0 12px 12px 0;
+  box-shadow:12px 0 40px rgba(0,0,0,.5);
+}
+
+/* Subtle page texture */
+.page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.03) 27px,rgba(0,0,0,.03) 28px);pointer-events:none}
+
+/* Page number */
+.pg-num{position:absolute;bottom:18px;font-size:11px;color:var(--page-muted);font-weight:700;letter-spacing:.6px}
+.page-l .pg-num{left:24px}
+.page-r .pg-num{right:24px}
+
+/* Page curl */
+.page-r::after{content:'';position:absolute;bottom:0;right:0;width:28px;height:28px;background:linear-gradient(225deg,#e8e8e4 50%,transparent 50%);border-radius:0 0 12px 0}
+
+/* ── FLIP ANIMATION ── */
+.flip-overlay{
+  position:absolute;
+  top:0;right:0;
+  width:50%;height:100%;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  z-index:20;
+  pointer-events:none;
+  border-radius:0 12px 12px 0;
+  overflow:hidden;
+  display:none;
+}
+
+.flip-overlay.flipping-fwd{
+  display:block;
+  animation:flipFwd .55s cubic-bezier(.4,0,.2,1) forwards;
+}
+.flip-overlay.flipping-bwd{
+  display:block;
+  animation:flipBwd .55s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+@keyframes flipFwd{
+  0%{transform:rotateY(0deg);box-shadow:0 0 0 rgba(0,0,0,0)}
+  40%{box-shadow:-20px 0 40px rgba(0,0,0,.2)}
+  100%{transform:rotateY(-180deg);box-shadow:0 0 0 rgba(0,0,0,0)}
+}
+@keyframes flipBwd{
+  0%{transform:rotateY(-180deg)}
+  100%{transform:rotateY(0deg)}
+}
+
+/* ── PAGE CONTENT STYLES ── */
+.pg-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:480px;padding:40px}
+.cover-logo{width:72px;height:72px;background:linear-gradient(135deg,var(--brand-primary),var(--brand-p2));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;box-shadow:0 8px 24px rgba(10,110,78,.25)}
+.cover-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;color:var(--page-text);line-height:1.2;margin-bottom:10px}
+.cover-sub{font-size:13px;color:var(--page-muted);font-weight:600;line-height:1.6;max-width:240px}
+.cover-line{width:40px;height:3px;background:linear-gradient(90deg,var(--brand-primary),var(--brand-accent));border-radius:3px;margin:16px auto}
+.cover-edition{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--brand-accent);margin-top:12px}
+
+.pg-chapter-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(10,110,78,.1);border:1px solid rgba(10,110,78,.2);color:var(--brand-primary);font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:14px}
+.pg-h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;line-height:1.25;color:var(--page-text);margin-bottom:12px}
+.pg-h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--page-text);margin-bottom:10px;margin-top:20px}
+.pg-p{font-size:13px;line-height:1.8;color:var(--page-muted);font-weight:500;margin-bottom:10px}
+.pg-divider{height:1.5px;background:linear-gradient(90deg,var(--brand-primary),transparent);opacity:.15;margin:16px 0}
+
+.callout{border-radius:10px;padding:13px 15px;margin:14px 0;display:flex;gap:10px}
+.callout-tip{background:rgba(10,110,78,.07);border-left:3px solid var(--brand-primary)}
+.callout-warn{background:rgba(212,168,71,.1);border-left:3px solid var(--brand-accent)}
+.callout .ci{font-size:16px;flex-shrink:0;margin-top:1px}
+.callout .ct strong{display:block;font-size:12px;font-weight:800;color:var(--brand-primary);margin-bottom:3px}
+.callout-warn .ct strong{color:#7a5c00}
+.callout .ct p{font-size:12px;line-height:1.6;color:var(--page-muted)}
+
+.step-item{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+.step-n{width:26px;height:26px;border-radius:8px;background:var(--brand-primary);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-b h4{font-size:13px;font-weight:800;margin-bottom:3px}
+.step-b p{font-size:12px;color:var(--page-muted);line-height:1.6}
+
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.tbl thead tr{background:var(--brand-primary)}
+.tbl thead th{color:#fff;padding:8px 10px;text-align:left;font-weight:700;font-size:11px}
+.tbl tbody tr{border-bottom:1px solid rgba(0,0,0,.06)}
+.tbl tbody tr:hover{background:rgba(10,110,78,.04)}
+.tbl tbody td{padding:8px 10px;color:var(--page-text);font-weight:500}
+
+.bdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.bdg-g{background:#D5EFE0;color:#1A6B40}
+.bdg-y{background:#FEF3CC;color:#7D5C00}
+.bdg-gray{background:#EAECEE;color:#555}
+
+/* ── CONTROLS ── */
+.controls{display:flex;align-items:center;gap:14px;margin-top:24px}
+.btn-nav{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
+.btn-nav:hover:not(:disabled){background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
+.btn-nav:disabled{opacity:.25;cursor:not-allowed}
+.page-info{font-size:13px;font-weight:700;color:rgba(255,255,255,.45);min-width:90px;text-align:center}
+
+/* progress */
+.prog{width:100%;max-width:920px;height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--brand-primary),var(--brand-p2));border-radius:3px;transition:width .3s}
+
+/* thumb */
+.thumbs{display:flex;gap:8px;max-width:920px;width:100%;overflow-x:auto;padding:4px 0;margin-top:16px}
+.thumbs::-webkit-scrollbar{height:3px}
+.thumbs::-webkit-scrollbar-track{background:transparent}
+.thumbs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+.thumb{flex-shrink:0;width:52px;height:70px;border-radius:6px;border:2px solid transparent;cursor:pointer;overflow:hidden;transition:border-color .15s,transform .15s;font-size:10px;font-weight:700;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;background:#1e2230}
+.thumb:hover{transform:translateY(-2px)}
+.thumb.active{border-color:var(--brand-p2);color:#fff}
+
+.demo-notice{font-size:12px;color:rgba(255,255,255,.22);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 14px;text-align:center;max-width:920px;width:100%;font-weight:500;margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="logo-box">🏛️</div>
+    <strong>Guide Book · Demo B</strong>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-dl" id="btnDl" onclick="generatePDF()">⬇ Unduh PDF</button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog"><div class="prog-fill" id="progFill" style="width:12.5%"></div></div>
+
+<!-- BOOK -->
+<div class="scene">
+  <div class="book" id="book">
+    <div class="page page-l" id="pageL">
+      <!-- Content injected by JS -->
+      <span class="pg-num" id="numL"></span>
+    </div>
+    <div class="page page-r" id="pageR">
+      <span class="pg-num" id="numR"></span>
+    </div>
+    <div class="flip-overlay" id="flipOverlay"></div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="btn-nav" id="btnFirst" onclick="goFirst()">⟨⟨</button>
+  <button class="btn-nav" id="btnPrev"  onclick="prev()">‹</button>
+  <div class="page-info" id="pgInfo">1 – 2 / 8</div>
+  <button class="btn-nav" id="btnNext"  onclick="next()">›</button>
+  <button class="btn-nav" id="btnLast"  onclick="goLast()">⟩⟩</button>
+</div>
+
+<!-- THUMBS -->
+<div class="thumbs" id="thumbs"></div>
+
+<div class="demo-notice">Demo B · HTML murni — konten ditulis di JS, tombol Unduh PDF men-generate PDF dari halaman ini</div>
+
+<script>
+/* ── PAGE DATA ─────────────────────────────────────────────── */
+const PAGES=[
+  /* 0 — Cover Kiri (blank) */
+  {html:`<div class="pg-cover" style="background:linear-gradient(160deg,#0B1C16,#0F2A1F);min-height:580px;border-radius:12px 0 0 12px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
+    <div style="font-size:50px;margin-bottom:16px;opacity:.15">📖</div>
+    <p style="font-size:12px;color:rgba(255,255,255,.25);letter-spacing:1px;font-weight:700;text-transform:uppercase">Pondok Modern</p>
+  </div>`},
+
+  /* 1 — Cover Kanan */
+  {html:`<div class="pg-cover">
+    <div class="cover-logo">🕌</div>
+    <div class="cover-title">Panduan<br>Santri</div>
+    <div class="cover-line"></div>
+    <div class="cover-sub">Panduan lengkap kehidupan santri — dari pendaftaran hingga kelulusan</div>
+    <div class="cover-edition">✦ Edisi 1447–1448 H</div>
+  </div>`},
+
+  /* 2 — Daftar Isi Kiri */
+  {html:`<div>
+    <div class="pg-chapter-tag">📋 Daftar Isi</div>
+    <div class="pg-h1">Isi Panduan</div>
+    <div class="pg-divider"></div>
+    <div style="margin-top:12px">
+      ${[['1','Selamat Datang & Visi Pondok','1'],['2','Alur Pendaftaran','3'],['3','Fasilitas & Asrama','5'],['4','Jadwal Harian','7'],['5','Kurikulum & Pelajaran','9'],['6','Peraturan & Tata Tertib','11'],['7','Kesehatan & Konsumsi','13'],['8','Kontak & FAQ','15']].map(([n,t,p])=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.05)">
+        <span style="font-size:12px;font-weight:800;color:var(--brand-primary);min-width:18px">${n}</span>
+        <span style="font-size:13px;font-weight:600;flex:1">${t}</span>
+        <span style="font-size:12px;color:var(--page-muted)">${p}</span>
+      </div>`).join('')}
+    </div>
+  </div>`},
+
+  /* 3 — Daftar Isi Kanan */
+  {html:`<div>
+    <div class="pg-chapter-tag">✨ Tentang Panduan</div>
+    <div class="pg-h1">Kata Pengantar</div>
+    <div class="pg-divider"></div>
+    <p class="pg-p">Bismillahirrahmanirrahim. Buku panduan ini disusun untuk membantu santri baru memahami seluruh aspek kehidupan di lingkungan pondok dengan lebih mudah dan terstruktur.</p>
+    <p class="pg-p">Dengan panduan ini, diharapkan santri dapat beradaptasi lebih cepat, memahami peraturan dengan baik, dan memanfaatkan seluruh fasilitas yang tersedia secara optimal.</p>
+    <div class="callout callout-tip">
+      <span class="ci">💡</span>
+      <div class="ct"><strong>Tips</strong><p>Baca panduan ini dari awal hingga akhir sebelum hari pertama agar tidak ada yang terlewat.</p></div>
+    </div>
+    <div style="margin-top:20px;padding:16px;background:rgba(10,110,78,.06);border-radius:10px;text-align:center">
+      <p style="font-size:11px;font-weight:700;color:var(--brand-primary);letter-spacing:.5px">PANCA JIWA PONDOK</p>
+      <p style="font-size:12px;color:var(--page-muted);margin-top:6px;line-height:1.7">Keikhlasan · Kesederhanaan<br>Berdikari · Ukhuwah Islamiyah · Kebebasan</p>
+    </div>
+  </div>`},
+
+  /* 4 — Pendaftaran Kiri */
+  {html:`<div>
+    <div class="pg-chapter-tag">📋 Bab 2</div>
+    <div class="pg-h1">Alur Pendaftaran</div>
+    <div class="pg-divider"></div>
+    <div class="step-item"><div class="step-n">1</div><div class="step-b"><h4>Siapkan Dokumen</h4><p>Akta kelahiran, KK, ijazah/rapor, pas foto 3×4 (6 lembar), dan surat keterangan sehat.</p></div></div>
+    <div class="step-item"><div class="step-n">2</div><div class="step-b"><h4>Lapor ke Sekretariat</h4><p>Datang ke gedung penerimaan pukul 08.00–12.00 pada hari pertama pendaftaran.</p></div></div>
+    <div class="step-item"><div class="step-n">3</div><div class="step-b"><h4>Pembayaran & Verifikasi</h4><p>Selesaikan administrasi keuangan dan serahkan seluruh dokumen ke panitia.</p></div></div>
+    <div class="step-item"><div class="step-n">4</div><div class="step-b"><h4>Penempatan Asrama</h4><p>Dapatkan nomor kamar dan mulai proses orientasi santri baru.</p></div></div>
+  </div>`},
+
+  /* 5 — Jadwal Kanan */
+  {html:`<div>
+    <div class="pg-chapter-tag">⏰ Bab 4</div>
+    <div class="pg-h1">Jadwal Harian</div>
+    <div class="pg-divider"></div>
+    <table class="tbl">
+      <thead><tr><th>Waktu</th><th>Kegiatan</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>03.45</strong></td><td>Qiyamul Lail</td><td><span class="bdg bdg-g">Wajib</span></td></tr>
+        <tr><td><strong>04.30</strong></td><td>Sholat Subuh</td><td><span class="bdg bdg-g">Wajib</span></td></tr>
+        <tr><td><strong>05.00</strong></td><td>Muhadhoroh</td><td><span class="bdg bdg-y">Terjadwal</span></td></tr>
+        <tr><td><strong>07.30</strong></td><td>KBM Sesi 1</td><td><span class="bdg bdg-g">Wajib</span></td></tr>
+        <tr><td><strong>12.00</strong></td><td>Dzuhur & Makan</td><td><span class="bdg bdg-g">Wajib</span></td></tr>
+        <tr><td><strong>13.00</strong></td><td>KBM Sesi 2</td><td><span class="bdg bdg-g">Wajib</span></td></tr>
+        <tr><td><strong>15.30</strong></td><td>Ashar & Olahraga</td><td><span class="bdg bdg-y">Terjadwal</span></td></tr>
+        <tr><td><strong>21.00</strong></td><td>Belajar Malam</td><td><span class="bdg bdg-gray">Mandiri</span></td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-warn" style="margin-top:12px">
+      <span class="ci">⚠️</span>
+      <div class="ct"><strong>Perhatian</strong><p>Keterlambatan hadir berjamaah akan dicatat dan berdampak pada penilaian perilaku santri.</p></div>
+    </div>
+  </div>`},
+
+  /* 6 — Peraturan Kiri */
+  {html:`<div>
+    <div class="pg-chapter-tag">📜 Bab 6</div>
+    <div class="pg-h1">Tata Tertib</div>
+    <div class="pg-divider"></div>
+    <div class="pg-h2">Dilarang Keras</div>
+    ${['Membawa & menggunakan HP/gadget hiburan','Keluar pondok tanpa izin resmi','Membawa uang tunai berlebihan (>Rp 50rb)','Berbicara selain bahasa Arab/Inggris di luar kelas','Berpakaian tidak sesuai ketentuan pondok'].map((t,i)=>`
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#E74C3C;flex-shrink:0;margin-top:5px"></div>
+      <p style="font-size:12.5px;font-weight:600;color:var(--page-text)">${t}</p>
+    </div>`).join('')}
+    <div class="callout callout-warn" style="margin-top:14px">
+      <span class="ci">⚠️</span>
+      <div class="ct"><strong>Sanksi</strong><p>Pelanggaran dicatat dalam buku pelanggaran. Akumulasi 3× mengakibatkan panggilan wali santri.</p></div>
+    </div>
+  </div>`},
+
+  /* 7 — Penutup Kanan */
+  {html:`<div class="pg-cover" style="text-align:center">
+    <div style="font-size:42px;margin-bottom:16px">🤲</div>
+    <div class="pg-h1" style="font-size:20px">Semoga Bermanfaat</div>
+    <div class="cover-line"></div>
+    <p class="pg-p" style="font-size:13px;line-height:1.8;margin-top:12px">Panduan ini adalah teman perjalananmu. Jadikan setiap hari di pondok sebagai investasi terbaik untuk masa depanmu.</p>
+    <div style="margin-top:24px;padding:16px;border:1.5px dashed rgba(10,110,78,.2);border-radius:12px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--brand-primary);text-transform:uppercase">Kontak Darurat</p>
+      <p style="font-size:12px;color:var(--page-muted);margin-top:6px;line-height:1.8">Sekretariat: (0352) 000-0000<br>Klinik Pondok: (0352) 000-0001<br>Email: info@gontor.ac.id</p>
+    </div>
+    <p style="font-size:11px;color:var(--page-muted);margin-top:20px;font-weight:600">© 2025 Pondok Modern Darussalam Gontor</p>
+  </div>`},
+];
+
+const totalSpreads=Math.ceil(PAGES.length/2);
+let current=0,animating=false;
+
+function getSpreadPages(idx){
+  return[PAGES[idx*2]||null,PAGES[idx*2+1]||null];
+}
+
+function setContent(el,page,numEl,num){
+  if(!page){el.innerHTML='<span class="pg-num"></span>';return}
+  el.innerHTML=page.html;
+  const n=document.createElement('span');
+  n.className='pg-num';n.textContent=num||'';
+  el.appendChild(n);
+}
+
+function renderSpread(idx,animate,dir){
+  if(animating)return;
+  const[lp,rp]=getSpreadPages(idx);
+
+  if(animate){
+    animating=true;
+    const overlay=document.getElementById('flipOverlay');
+    const curR=document.getElementById('pageR');
+    overlay.innerHTML=curR.innerHTML;
+    overlay.style.cssText=`position:absolute;top:0;right:0;width:50%;height:100%;transform-origin:left center;z-index:20;pointer-events:none;border-radius:0 12px 12px 0;overflow:hidden;background:var(--page-bg)`;
+    overlay.className='flip-overlay';
+    void overlay.offsetWidth;
+    overlay.classList.add(dir==='fwd'?'flipping-fwd':'flipping-bwd');
+    setTimeout(()=>{
+      setContent(document.getElementById('pageL'),lp,null,idx*2+1);
+      setContent(document.getElementById('pageR'),rp,null,idx*2+2);
+    },200);
+    setTimeout(()=>{
+      overlay.className='flip-overlay';
+      overlay.style.display='none';
+      animating=false;
+      current=idx;updateUI();
+    },560);
+  }else{
+    setContent(document.getElementById('pageL'),lp,null,idx*2+1);
+    setContent(document.getElementById('pageR'),rp,null,idx*2+2);
+    current=idx;updateUI();
+  }
+}
+
+function updateUI(){
+  const lp=current*2+1,rp=current*2+2;
+  document.getElementById('pgInfo').textContent=rp<=PAGES.length?`${lp}–${rp} / ${PAGES.length}`:`${lp} / ${PAGES.length}`;
+  document.getElementById('progFill').style.width=((current+1)/totalSpreads*100)+'%';
+  document.getElementById('btnPrev').disabled=current===0;
+  document.getElementById('btnFirst').disabled=current===0;
+  document.getElementById('btnNext').disabled=current>=totalSpreads-1;
+  document.getElementById('btnLast').disabled=current>=totalSpreads-1;
+  document.querySelectorAll('.thumb').forEach((t,i)=>t.classList.toggle('active',i===current));
+}
+
+function next(){if(!animating&&current<totalSpreads-1)renderSpread(current+1,true,'fwd')}
+function prev(){if(!animating&&current>0)renderSpread(current-1,true,'bwd')}
+function goFirst(){renderSpread(0,false)}
+function goLast(){renderSpread(totalSpreads-1,false)}
+
+/* Build thumbs */
+(function(){
+  const strip=document.getElementById('thumbs');
+  for(let i=0;i<totalSpreads;i++){
+    const d=document.createElement('div');
+    d.className='thumb'+(i===0?' active':'');
+    d.textContent=(i*2+1)+(i*2+2<=PAGES.length?'–'+(i*2+2):'');
+    d.onclick=(()=>{const idx=i;return()=>renderSpread(idx,true,idx>current?'fwd':'bwd')})();
+    strip.appendChild(d);
+  }
+})();
+
+/* Initial render */
+renderSpread(0,false);
+
+/* Generate PDF via html2canvas + jsPDF */
+async function generatePDF(){
+  const btn=document.getElementById('btnDl');
+  btn.disabled=true;btn.textContent='⏳ Menyiapkan...';
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const orig=current;
+
+  for(let i=0;i<totalSpreads;i++){
+    renderSpread(i,false);
+    await sleep(150);
+    const bookEl=document.getElementById('book');
+    const canvas=await html2canvas(bookEl,{scale:1.5,useCORS:true,backgroundColor:'#FAFAF7'});
+    const img=canvas.toDataURL('image/jpeg',0.92);
+    if(i>0)doc.addPage();
+    doc.addImage(img,'JPEG',0,0,297,210);
+    btn.textContent=`⏳ ${Math.round((i+1)/totalSpreads*100)}%`;
+  }
+
+  renderSpread(orig,false);
+  doc.save('guidebook.pdf');
+  btn.disabled=false;btn.innerHTML='⬇ Unduh PDF';
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev()});
+</script>
+</body>
+</html>

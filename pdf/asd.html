@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Guide Book</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   🎨 BRANDING CONFIG — EDIT DI SINI SAJA
+   Semua perubahan visual bersumber dari sini
+   ============================================================ */
+:root {
+  /* — Logo & Nama — */
+  --brand-name:       "Your Brand";
+  --brand-tagline:    "Panduan Resmi Anda";
+  --brand-logo-emoji: "🏛️";   /* Ganti dengan <img> jika punya file logo */
+
+  /* — Warna Utama — */
+  --color-primary:    #0A6E4E;   /* Hijau tua / warna dominan */
+  --color-primary-2:  #0D8F65;   /* Varian lebih terang */
+  --color-accent:     #D4A847;   /* Gold / aksen */
+  --color-accent-2:   #B8922E;   /* Gold lebih gelap */
+
+  /* — Background & Surface — */
+  --color-bg:         #F7F8F5;   /* Background halaman */
+  --color-surface:    #FFFFFF;   /* Card / panel */
+  --color-sidebar-bg: #0B1C16;   /* Background sidebar */
+  --color-sidebar-2:  #0F2A1F;   /* Sidebar hover/section */
+
+  /* — Teks — */
+  --color-text:       #1A2419;   /* Teks utama */
+  --color-text-muted: #6B7C6A;   /* Teks sekunder */
+  --color-text-light: #A8B8A7;   /* Teks placeholder */
+
+  /* — Status Colors — */
+  --color-success:    #2E7D52;
+  --color-warning:    #B8860B;
+  --color-info:       #1565A0;
+  --color-danger:     #B71C1C;
+
+  /* — Border & Shadow — */
+  --border-radius-sm: 8px;
+  --border-radius-md: 14px;
+  --border-radius-lg: 20px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
+  --shadow-md: 0 6px 20px rgba(0,0,0,.1);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.14);
+
+  /* — Font — */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* — Sidebar Width — */
+  --sidebar-width: 272px;
+}
+
+/* ============================================================
+   BASE RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--color-sidebar-bg);
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255,255,255,.04);
+}
+
+/* Brand Header */
+.sidebar-brand {
+  padding: 28px 22px 24px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-brand::after {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(212,168,71,.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.brand-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.brand-logo-box {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(10,110,78,.4);
+  flex-shrink: 0;
+  overflow: hidden; /* for img logo */
+}
+
+.brand-logo-box img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 11px;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: #fff;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.brand-tagline {
+  font-size: 11px;
+  color: rgba(255,255,255,.35);
+  font-weight: 500;
+  letter-spacing: .6px;
+}
+
+.brand-edition {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(212,168,71,.15);
+  border: 1px solid rgba(212,168,71,.25);
+  color: var(--color-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+/* Navigation */
+.sidebar-nav {
+  padding: 18px 14px;
+  flex: 1;
+}
+
+.nav-group-label {
+  padding: 14px 10px 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.2);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--border-radius-sm);
+  color: rgba(255,255,255,.55);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+  text-decoration: none;
+  margin-bottom: 1px;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.85);
+}
+
+.nav-link.active {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-2));
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(10,110,78,.35);
+}
+
+.nav-link .nav-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  background: rgba(255,255,255,.07);
+  flex-shrink: 0;
+  transition: background .18s;
+}
+
+.nav-link.active .nav-icon { background: rgba(255,255,255,.18); }
+.nav-link:hover .nav-icon   { background: rgba(255,255,255,.1); }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 16px 22px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.sidebar-footer p {
+  font-size: 11px;
+  color: rgba(255,255,255,.2);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+.topbar {
+  background: var(--color-surface);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  padding: 0 40px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.topbar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.topbar-breadcrumb .sep { opacity: .4; }
+.topbar-breadcrumb .current { color: var(--color-text); }
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-icon {
+  width: 34px; height: 34px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(0,0,0,.09);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background .15s;
+  color: var(--color-text-muted);
+}
+
+.btn-icon:hover { background: var(--color-bg); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-2));
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s, transform .15s;
+  box-shadow: 0 3px 10px rgba(10,110,78,.3);
+}
+
+.btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  background: var(--color-sidebar-bg);
+  padding: 52px 40px 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Geometric ornament */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 360px; height: 360px;
+  border: 60px solid rgba(212,168,71,.07);
+  border-radius: 50%;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: 120px;
+  width: 200px; height: 200px;
+  border: 30px solid rgba(10,110,78,.12);
+  border-radius: 50%;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+}
+
+.hero-chapter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(212,168,71,.12);
+  border: 1px solid rgba(212,168,71,.25);
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: 40px;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  font-weight: 800;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: var(--color-accent);
+}
+
+.hero-desc {
+  color: rgba(255,255,255,.55);
+  font-size: 15px;
+  line-height: 1.75;
+  margin-bottom: 28px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+/* Decorative line under hero */
+.hero-divider {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent), transparent);
+}
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+.content {
+  padding: 40px 40px 64px;
+  max-width: 900px;
+}
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  margin-top: 48px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.section-head:first-child { margin-top: 0; }
+
+.section-head-icon {
+  width: 46px; height: 46px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-head-text h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.section-head-text p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* ============================================================
+   OVERVIEW GRID
+   ============================================================ */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.overview-card {
+  background: var(--color-surface);
+  border-radius: var(--border-radius-md);
+  padding: 20px 18px;
+  border: 1px solid rgba(0,0,0,.06);
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.overview-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--card-accent, var(--color-primary));
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.overview-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0,0,0,.1);
+}
+
+.overview-card .oc-icon { font-size: 26px; margin-bottom: 10px; }
+.overview-card h3 { font-size: 14px; font-weight: 800; color: var(--color-text); margin-bottom: 4px; }
+.overview-card p  { font-size: 12px; color: var(--color-text-muted); font-weight: 500; line-height: 1.5; }
+
+/* ============================================================
+   CALLOUT / INFO BOXES
+   ============================================================ */
+.callout {
+  border-radius: var(--border-radius-md);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border: 1px solid transparent;
+}
+
+.callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.callout-body {}
+.callout-body strong { display: block; font-size: 13.5px; font-weight: 800; margin-bottom: 4px; }
+.callout-body p  { font-size: 13px; line-height: 1.65; font-weight: 500; }
+
+.callout-tip    { background: #EAF6EE; border-color: #A8D9B8; }
+.callout-tip    .callout-body strong, .callout-tip .callout-body p { color: var(--color-success); }
+
+.callout-warn   { background: #FEF8E7; border-color: #F0D080; }
+.callout-warn   .callout-body strong, .callout-warn .callout-body p { color: var(--color-warning); }
+
+.callout-info   { background: #EAF2FB; border-color: #A9CCE3; }
+.callout-info   .callout-body strong, .callout-info .callout-body p { color: var(--color-info); }
+
+.callout-danger { background: #FDEDEC; border-color: #F1948A; }
+.callout-danger .callout-body strong, .callout-danger .callout-body p { color: var(--color-danger); }
+
+/* ============================================================
+   STEP LIST
+   ============================================================ */
+.step-list { counter-reset: steps; margin-bottom: 32px; }
+
+.step-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  animation: fadeUp .3s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.step-num {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-2));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(10,110,78,.25);
+}
+
+.step-body { padding-top: 4px; }
+.step-body h4 { font-size: 14.5px; font-weight: 800; margin-bottom: 4px; }
+.step-body p  { font-size: 13px; color: var(--color-text-muted); line-height: 1.65; }
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.table-container {
+  background: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid rgba(0,0,0,.07);
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-container table { width: 100%; border-collapse: collapse; }
+
+.table-container thead tr {
+  background: linear-gradient(135deg, var(--color-sidebar-bg), var(--color-sidebar-2));
+}
+
+.table-container thead th {
+  padding: 13px 18px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+}
+
+.table-container tbody tr {
+  border-bottom: 1px solid rgba(0,0,0,.05);
+  transition: background .12s;
+}
+
+.table-container tbody tr:last-child { border-bottom: none; }
+.table-container tbody tr:hover { background: #f4faf6; }
+
+.table-container tbody td {
+  padding: 12px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  vertical-align: middle;
+}
+
+.table-container tbody td.muted { color: var(--color-text-muted); }
+
+/* ============================================================
+   BADGE
+   ============================================================ */
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.badge-green  { background: #D5EFE0; color: #1A6B40; }
+.badge-gold   { background: #FEF3CC; color: #7D5C00; }
+.badge-blue   { background: #D6EAF8; color: #154874; }
+.badge-gray   { background: #EAECEE; color: #566573; }
+.badge-red    { background: #FDEDEC; color: #922B21; }
+
+/* ============================================================
+   IMAGE BLOCK
+   ============================================================ */
+.img-block {
+  background: var(--color-surface);
+  border: 1.5px dashed rgba(0,0,0,.12);
+  border-radius: var(--border-radius-lg);
+  height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-text-light);
+  margin-bottom: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color .15s, background .15s;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.img-block img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+}
+
+.img-block:hover { border-color: var(--color-primary); background: #EAF6EE; }
+.img-block .img-icon { font-size: 36px; }
+.img-block .img-caption { font-size: 11px; color: var(--color-text-light); margin-top: 4px; }
+
+/* ============================================================
+   STAT ROW
+   ============================================================ */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: var(--border-radius-md);
+  padding: 20px 18px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card .stat-val {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+/* ============================================================
+   QUOTE
+   ============================================================ */
+.quote-block {
+  background: var(--color-sidebar-bg);
+  border-radius: var(--border-radius-lg);
+  padding: 32px 36px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quote-block::before {
+  content: '\201C';
+  font-family: var(--font-display);
+  font-size: 100px;
+  color: rgba(212,168,71,.15);
+  position: absolute;
+  top: -10px; left: 20px;
+  line-height: 1;
+}
+
+.quote-block blockquote {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: rgba(255,255,255,.85);
+  line-height: 1.7;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+  font-style: italic;
+}
+
+.quote-block cite {
+  display: block;
+  margin-top: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-style: normal;
+  position: relative;
+  z-index: 1;
+  letter-spacing: .5px;
+}
+
+/* ============================================================
+   SECTION DIVIDER
+   ============================================================ */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-primary), rgba(0,0,0,0));
+  opacity: .15;
+  margin: 44px 0;
+}
+
+/* ============================================================
+   CHAPTER FOOTER
+   ============================================================ */
+.chapter-footer {
+  background: var(--color-surface);
+  border: 1px solid rgba(0,0,0,.07);
+  border-radius: var(--border-radius-lg);
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 48px;
+  box-shadow: var(--shadow-sm);
+}
+
+.chapter-footer .cf-info p { font-size: 12px; color: var(--color-text-muted); font-weight: 600; }
+.chapter-footer .cf-info strong { font-size: 15px; color: var(--color-text); font-weight: 800; display: block; margin-top: 2px; }
+
+.chapter-footer .cf-nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid rgba(0,0,0,.1);
+  color: var(--color-text-muted);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.btn-ghost:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* ============================================================
+   PROGRESS TRACKER
+   ============================================================ */
+.progress-item { margin-bottom: 14px; }
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.progress-row span { font-size: 13px; font-weight: 700; color: var(--color-text); }
+.progress-row .pct { color: var(--color-primary); }
+
+.progress-track {
+  height: 8px;
+  background: rgba(0,0,0,.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-2));
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); transition: transform .25s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hero { padding: 40px 24px 32px; }
+  .content { padding: 28px 24px 48px; }
+  .topbar { padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== SIDEBAR ===================== -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <div class="brand-logo-row">
+      <!--
+        🔧 GANTI LOGO:
+        Opsi 1 — Emoji  : <span style="font-size:22px">🏛️</span>
+        Opsi 2 — Gambar : <img src="logo.png" alt="logo" style="width:42px;height:42px;border-radius:11px;object-fit:cover">
+      -->
+      <div class="brand-logo-box">
+        <span style="font-size:22px">🏛️</span>
+      </div>
+      <div>
+        <div class="brand-name" id="sb-name">Your Brand</div>
+        <div class="brand-tagline" id="sb-tagline">Panduan Resmi</div>
+      </div>
+    </div>
+    <div class="brand-edition" id="sb-edition">✦ Edisi 2025</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <p class="nav-group-label">Mulai</p>
+    <a class="nav-link active" href="#">
+      <span class="nav-icon">👋</span> Selamat Datang
+      <span class="nav-badge">Baru</span>
+    </a>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">📋</span> Pendaftaran
+    </a>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">🏠</span> Fasilitas
+    </a>
+
+    <p class="nav-group-label">Kehidupan</p>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">⏰</span> Jadwal Harian
+    </a>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">📚</span> Kurikulum
+    </a>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">🍽️</span> Konsumsi & Kesehatan
+    </a>
+
+    <p class="nav-group-label">Tata Tertib</p>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">📜</span> Peraturan Umum
+    </a>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">🏆</span> Prestasi & Sanksi
+    </a>
+
+    <p class="nav-group-label">Informasi</p>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">📞</span> Kontak Penting
+    </a>
+    <a class="nav-link" href="#">
+      <span class="nav-icon">❓</span> FAQ
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <p id="sb-footer">© 2025 Your Brand<br>Hak cipta dilindungi</p>
+  </div>
+</aside>
+
+<!-- ===================== MAIN ===================== -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-breadcrumb">
+      <span id="tb-brand">Your Brand</span>
+      <span class="sep">›</span>
+      <span>Panduan</span>
+      <span class="sep">›</span>
+      <span class="current">Selamat Datang</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-icon" title="Cari">🔍</button>
+      <button class="btn-icon" title="Unduh PDF">⬇️</button>
+      <button class="btn-primary">Mulai Membaca →</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-chapter-tag">✦ Bab 1 · Pengantar</div>
+      <h1>Selamat Datang di<br><em id="hero-brand-name">Your Brand</em></h1>
+      <p class="hero-desc">
+        Panduan lengkap ini dirancang untuk membantu Anda memahami lingkungan,
+        peraturan, fasilitas, dan kehidupan sehari-hari. Baca dengan seksama
+        sebelum memulai perjalanan Anda.
+      </p>
+      <div class="hero-meta">
+        <div class="meta-chip">📖 12 Bab</div>
+        <div class="meta-chip">⏱️ 20 menit baca</div>
+        <div class="meta-chip" id="hero-edition">🗓️ Edisi 2025</div>
+        <div class="meta-chip">🔄 Diperbarui</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- STAT ROW -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-val">12</div>
+        <div class="stat-label">Bab Panduan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">48</div>
+        <div class="stat-label">Halaman Konten</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">6</div>
+        <div class="stat-label">Jenjang Kelas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">24<span style="font-size:18px">h</span></div>
+        <div class="stat-label">Layanan Tersedia</div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW CARDS -->
+    <div class="section-head">
+      <div class="section-head-icon" style="background:#EAF6EE;">🗂️</div>
+      <div class="section-head-text">
+        <h2>Isi Panduan</h2>
+        <p>Navigasi cepat ke bab yang Anda butuhkan</p>
+      </div>
+    </div>
+
+    <div class="overview-grid">
+      <div class="overview-card" style="--card-accent:var(--color-primary)">
+        <div class="oc-icon">📋</div>
+        <h3>Pendaftaran</h3>
+        <p>Prosedur & dokumen yang diperlukan</p>
+      </div>
+      <div class="overview-card" style="--card-accent:var(--color-accent)">
+        <div class="oc-icon">🏠</div>
+        <h3>Fasilitas</h3>
+        <p>Asrama, ruang belajar & sarana umum</p>
+      </div>
+      <div class="overview-card" style="--card-accent:#3498DB">
+        <div class="oc-icon">⏰</div>
+        <h3>Jadwal</h3>
+        <p>Rutinitas harian & mingguan</p>
+      </div>
+      <div class="overview-card" style="--card-accent:#8E44AD">
+        <div class="oc-icon">📚</div>
+        <h3>Kurikulum</h3>
+        <p>Mata pelajaran & evaluasi</p>
+      </div>
+      <div class="overview-card" style="--card-accent:#E67E22">
+        <div class="oc-icon">🍽️</div>
+        <h3>Konsumsi</h3>
+        <p>Jadwal makan & layanan kesehatan</p>
+      </div>
+      <div class="overview-card" style="--card-accent:#E74C3C">
+        <div class="oc-icon">📜</div>
+        <h3>Tata Tertib</h3>
+        <p>Peraturan, sanksi & penghargaan</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STEP LIST -->
+    <div class="section-head">
+      <div class="section-head-icon" style="background:#EAF2FB;">📋</div>
+      <div class="section-head-text">
+        <h2>Alur Pendaftaran</h2>
+        <p>Ikuti langkah ini secara berurutan</p>
+      </div>
+    </div>
+
+    <div class="step-list">
+      <div class="step-item" style="animation-delay:.05s">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Persiapkan Dokumen</h4>
+          <p>Akta kelahiran asli & fotokopi, kartu keluarga, ijazah/rapor terakhir, dan pas foto terbaru ukuran 3×4 sebanyak 6 lembar.</p>
+        </div>
+      </div>
+      <div class="step-item" style="animation-delay:.1s">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Lapor ke Sekretariat</h4>
+          <p>Datang ke bagian penerimaan pada hari pertama pukul 08.00–12.00. Bawa semua dokumen lengkap dalam satu map.</p>
+        </div>
+      </div>
+      <div class="step-item" style="animation-delay:.15s">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Penempatan & Orientasi</h4>
+          <p>Setelah terdaftar, Anda akan mendapat penempatan resmi dan mengikuti program orientasi selama 3 hari.</p>
+        </div>
+      </div>
+      <div class="step-item" style="animation-delay:.2s">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Mulai Kegiatan Resmi</h4>
+          <p>Aktivitas penuh dimulai sesuai kalender akademik. Pastikan semua perlengkapan sudah siap sebelum hari pertama.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALLOUTS -->
+    <div class="callout callout-tip">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body">
+        <strong>Tips Penting</strong>
+        <p>Beri label nama pada semua barang pribadi Anda untuk menghindari tertukar dengan milik orang lain.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Perhatian</strong>
+        <p>Beberapa barang bawaan mungkin dibatasi atau tidak diperbolehkan. Cek daftar lengkap di Bab Tata Tertib sebelum berangkat.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-body">
+        <strong>Informasi</strong>
+        <p>Untuk pertanyaan lebih lanjut, hubungi bagian informasi atau lihat halaman FAQ di akhir panduan ini.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- TABLE -->
+    <div class="section-head">
+      <div class="section-head-icon" style="background:#FEF8E7;">⏰</div>
+      <div class="section-head-text">
+        <h2>Jadwal Harian</h2>
+        <p>Rutinitas standar hari aktif</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu</th>
+            <th>Kegiatan</th>
+            <th>Lokasi</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>03.45</strong></td>
+            <td>Qiyamul Lail & Sholat Tahajud</td>
+            <td class="muted">Masjid</td>
+            <td><span class="badge badge-green">Wajib</span></td>
+          </tr>
+          <tr>
+            <td><strong>04.30</strong></td>
+            <td>Sholat Subuh Berjamaah</td>
+            <td class="muted">Masjid</td>
+            <td><span class="badge badge-green">Wajib</span></td>
+          </tr>
+          <tr>
+            <td><strong>05.00</strong></td>
+            <td>Latihan Pidato / Muhadhoroh</td>
+            <td class="muted">Aula / Lapangan</td>
+            <td><span class="badge badge-gold">Terjadwal</span></td>
+          </tr>
+          <tr>
+            <td><strong>07.00</strong></td>
+            <td>Makan Pagi & Persiapan</td>
+            <td class="muted">Kantin</td>
+            <td><span class="badge badge-gray">Mandiri</span></td>
+          </tr>
+          <tr>
+            <td><strong>07.30</strong></td>
+            <td>Kegiatan Belajar Mengajar (Sesi 1)</td>
+            <td class="muted">Kelas</td>
+            <td><span class="badge badge-green">Wajib</span></td>
+          </tr>
+          <tr>
+            <td><strong>12.00</strong></td>
+            <td>Sholat Dzuhur Berjamaah & Makan Siang</td>
+            <td class="muted">Masjid / Kantin</td>
+            <td><span class="badge badge-green">Wajib</span></td>
+          </tr>
+          <tr>
+            <td><strong>13.00</strong></td>
+            <td>Kegiatan Belajar Mengajar (Sesi 2)</td>
+            <td class="muted">Kelas</td>
+            <td><span class="badge badge-green">Wajib</span></td>
+          </tr>
+          <tr>
+            <td><strong>15.30</strong></td>
+            <td>Sholat Ashar & Kegiatan Sore</td>
+            <td class="muted">Masjid / Lapangan</td>
+            <td><span class="badge badge-gold">Terjadwal</span></td>
+          </tr>
+          <tr>
+            <td><strong>21.00</strong></td>
+            <td>Belajar Malam & Istirahat</td>
+            <td class="muted">Asrama</td>
+            <td><span class="badge badge-gray">Mandiri</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- IMAGE BLOCK -->
+    <div class="img-block">
+      <span class="img-icon">🏫</span>
+      <span>Foto / Denah Lokasi</span>
+      <span class="img-caption">Klik untuk mengganti gambar · Disarankan 1200×600px</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- PROGRESS -->
+    <div class="section-head">
+      <div class="section-head-icon" style="background:#EDE7F6;">🎯</div>
+      <div class="section-head-text">
+        <h2>Target Kompetensi</h2>
+        <p>Standar pencapaian selama masa belajar</p>
+      </div>
+    </div>
+
+    <div class="progress-item">
+      <div class="progress-row"><span>Bahasa Arab</span><span class="pct">90%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:90%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-row"><span>Bahasa Inggris</span><span class="pct">75%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-row"><span>Ilmu Agama</span><span class="pct">85%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:85%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-row"><span>Kepemimpinan & Organisasi</span><span class="pct">80%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QUOTE -->
+    <div class="quote-block">
+      <blockquote>Ilmu tanpa amal adalah sia-sia, dan amal tanpa ilmu adalah sesat. Panduan ini hadir agar keduanya berjalan beriringan.</blockquote>
+      <cite>— Motto Lembaga</cite>
+    </div>
+
+    <!-- CHAPTER FOOTER -->
+    <div class="chapter-footer">
+      <div class="cf-info">
+        <p>Bab 1 dari 12</p>
+        <strong>Selamat Datang & Pengantar</strong>
+      </div>
+      <div class="cf-nav">
+        <button class="btn-ghost">← Sebelumnya</button>
+        <button class="btn-primary">Selanjutnya →</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ===================== BRANDING CONFIG SCRIPT ===================== -->
+<script>
+/**
+ * ================================================================
+ * 🎨 BRANDING CONFIGURATION
+ * Ubah nilai di sini untuk mengganti identitas visual seluruh halaman
+ * Tidak perlu menyentuh kode HTML atau CSS lainnya
+ * ================================================================
+ */
+const BRAND = {
+  name:      "Your Brand",          // Nama organisasi / lembaga
+  tagline:   "Panduan Resmi Anda",  // Tagline pendek
+  edition:   "Edisi 2025",          // Edisi / tahun
+
+  // Logo: gunakan emoji ATAU path file gambar (logo.png)
+  // logoEmoji: "🏛️",
+  // logoImage: "assets/logo.png",   // Aktifkan baris ini jika pakai gambar
+
+  // === WARNA UTAMA (hex) ===
+  colors: {
+    primary:   "#0A6E4E",   // Warna utama (sidebar aktif, tombol, dll)
+    primary2:  "#0D8F65",   // Varian lebih terang
+    accent:    "#D4A847",   // Warna aksen / gold
+    accent2:   "#B8922E",   // Aksen gelap
+    sidebarBg: "#0B1C16",   // Background sidebar
+    sidebar2:  "#0F2A1F",   // Sidebar sekunder
+    bg:        "#F7F8F5",   // Background halaman utama
+  }
+};
+
+/* ── Terapkan ke DOM ── */
+(function applyBranding(b) {
+  // Teks
+  document.title = b.name + " · Guide Book";
+  document.querySelectorAll('#sb-name, #tb-brand, #hero-brand-name')
+    .forEach(el => el.textContent = b.name);
+  const tagEl = document.getElementById('sb-tagline');
+  if (tagEl) tagEl.textContent = b.tagline;
+  const edEl1 = document.getElementById('sb-edition');
+  if (edEl1) edEl1.textContent = '✦ ' + b.edition;
+  const edEl2 = document.getElementById('hero-edition');
+  if (edEl2) edEl2.textContent = '🗓️ ' + b.edition;
+  const ftEl = document.getElementById('sb-footer');
+  if (ftEl) ftEl.innerHTML = '© 2025 ' + b.name + '<br>Hak cipta dilindungi';
+
+  // Logo
+  const logoBox = document.querySelector('.brand-logo-box');
+  if (logoBox && b.logoImage) {
+    logoBox.innerHTML = `<img src="${b.logoImage}" alt="${b.name} logo">`;
+  } else if (logoBox && b.logoEmoji) {
+    logoBox.innerHTML = `<span style="font-size:22px">${b.logoEmoji}</span>`;
+  }
+
+  // CSS Variables (warna)
+  const root = document.documentElement.style;
+  if (b.colors) {
+    if (b.colors.primary)   root.setProperty('--color-primary',    b.colors.primary);
+    if (b.colors.primary2)  root.setProperty('--color-primary-2',  b.colors.primary2);
+    if (b.colors.accent)    root.setProperty('--color-accent',      b.colors.accent);
+    if (b.colors.accent2)   root.setProperty('--color-accent-2',    b.colors.accent2);
+    if (b.colors.sidebarBg) root.setProperty('--color-sidebar-bg',  b.colors.sidebarBg);
+    if (b.colors.sidebar2)  root.setProperty('--color-sidebar-2',   b.colors.sidebar2);
+    if (b.colors.bg)        root.setProperty('--color-bg',          b.colors.bg);
+  }
+})(BRAND);
+</script>
+
+</body>
+</html>

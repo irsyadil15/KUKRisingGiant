@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - HR Cuti PRO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 40px;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* Header & Navigation */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 30px;
+    }
+
+    .header-bar h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .header-bar p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-top: 4px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .nav-tab {
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Utilities */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fdfdfd;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--border-hover);
+      background: #f8fafc;
+    }
+
+    .btn-danger {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    input,
+    select {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: 0.2s;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-left: 4px solid var(--primary);
+    }
+
+    .stat-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .stat-val {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 14px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .badge-primary {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .badge-success {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .badge-danger {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    /* Master Calendar Gantt */
+    .gantt-wrapper {
+      overflow-x: auto;
+      padding: 20px;
+    }
+
+    .gantt-grid {
+      display: grid;
+      gap: 4px;
+      min-width: 900px;
+    }
+
+    .g-row {
+      display: flex;
+      gap: 4px;
+      align-items: stretch;
+    }
+
+    .g-name {
+      width: 160px;
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    .g-days {
+      display: flex;
+      flex: 1;
+      gap: 2px;
+    }
+
+    .g-day {
+      flex: 1;
+      height: 28px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      position: relative;
+    }
+
+    .g-day.header {
+      background: transparent;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .g-day.weekend {
+      background: #e2e8f0;
+    }
+
+    .g-day.leave {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+    .g-day.leave:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+      margin-bottom: 4px;
+    }
+
+    .g-day.conflict {
+      background: var(--danger);
+      box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px var(--danger);
+    }
+
+    .g-day.div-booked {
+      background: #fef3c7;
+      cursor: not-allowed !important;
+    }
+
+    .g-section-row {
+      margin-top: 10px;
+    }
+
+    .g-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .g-section-bar {
+      background: var(--primary-light);
+      height: 4px;
+      border-radius: 0;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      transform: scale(0.92) translateY(12px);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #f8fafc;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+    }
+
+    /* Edit Leave Calendar */
+    .edit-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .edit-cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 10px;
+      background: #f1f5f9;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .edit-cal-day:hover {
+      border-color: var(--primary-light);
+    }
+
+    .edit-cal-day.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      font-weight: 700;
+      transform: scale(1.05);
+    }
+
+    .edit-cal-day.booked {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: 1px dashed var(--danger);
+      cursor: not-allowed;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: white;
+      color: var(--text);
+      padding: 14px 24px;
+      border-radius: 100px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+      font-size: 13px;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast.error {
+      border-left-color: var(--danger);
+    }
+
+    .loader {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .btn.loading {
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="container">
+    <div class="header-bar">
+      <div>
+        <h1>Manajemen Cuti Karyawan</h1>
+        <p>Kontrol penuh data karyawan dan pemantauan cuti secara real-time.</p>
+      </div>
+      <div class="filters">
+        <select id="filterMonth" onchange="renderAll()"></select>
+        <select id="filterYear" onchange="renderAll()"></select>
+        <button class="btn btn-outline" onclick="exportToImage()" style="margin-right: 8px;" id="btnExportImage">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Export Gambar
+        </button>
+        <button class="btn btn-outline" onclick="exportToCSV()" style="margin-right: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Export CSV
+        </button>
+        <button class="btn btn-outline" onclick="loadData()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+          Segarkan Data
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchTab('ringkasan', this)">Ringkasan Cuti</div>
+      <div class="nav-tab" onclick="switchTab('karyawan', this)">Database Karyawan</div>
+      <div class="nav-tab" onclick="switchTab('setup', this)">⚙ Setup Sistem</div>
+    </div>
+
+    <!-- TAB 1: RINGKASAN CUTI -->
+    <div id="tab-ringkasan" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-title">Cuti Bulan Ini</div>
+          <div class="stat-val" id="statCuti">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: var(--warning);">
+          <div class="stat-title">Kuota Maksimal (3/3)</div>
+          <div class="stat-val" id="statFull">0</div>
+        </div>
+        <div class="stat-card" style="border-left-color: var(--success);">
+          <div class="stat-title">Karyawan Tersedia</div>
+          <div class="stat-val" id="statHadir">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Peta Kalender (Gantt View)</div>
+        </div>
+        <div class="gantt-wrapper">
+          <div class="gantt-grid" id="ganttGrid">
+            <!-- Injected via JS -->
+            <div style="padding:40px; text-align:center; color:gray;">Memuat kalender...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: MANAJEMEN KARYAWAN -->
+    <div id="tab-karyawan" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <input type="text" id="searchKaryawan" placeholder="Cari nama / divisi..." style="width: 260px;"
+            onkeyup="renderKaryawan()">
+          <button class="btn btn-primary" onclick="openKaryawanModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg>
+            Tambah Karyawan
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nama Karyawan</th>
+                <th>Bagian / Divisi</th>
+                <th>Status</th>
+                <th style="text-align: right;">Aksi Cepat</th>
+              </tr>
+            </thead>
+            <tbody id="karyawanTable">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SETUP SISTEM -->
+    <div id="tab-setup" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚙ Pengaturan Batas Waktu Input Cuti</div>
+        </div>
+        <div style="padding: 28px; max-width: 520px;">
+          <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.6;">
+            Tentukan kapan karyawan boleh terakhir mengajukan atau mengubah jadwal cuti mereka. Setelah batas waktu ini
+            terlewat, sistem akan otomatis mengunci semua input karyawan.
+          </p>
+          <div class="form-group">
+            <label>Batas Akhir Penginputan Cuti</label>
+            <input type="datetime-local" id="setupDeadline" style="width:100%;">
+          </div>
+          <div id="setupCurrentInfo"
+            style="background: var(--primary-light); color: var(--primary); padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 20px;">
+            Memuat pengaturan aktif...</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnSaveSetup" onclick="saveSetup()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              Simpan Batas Waktu
+            </button>
+            <button class="btn btn-danger" onclick="clearDeadline()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              Buka Kunci (Hapus Batas)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit Karyawan -->
+  <div class="modal-overlay" id="modalKaryawan">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="mkTitle">Tambah Karyawan</h3>
+        <button class="btn btn-outline btn-icon" onclick="closeModal('modalKaryawan')"><svg width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="mkIsNew" value="true">
+        <div class="form-group" id="mkIdGroup">
+          <label>ID Karyawan</label>
+          <div id="mkIdDisplay"
+            style="display:none; background: var(--success-light); color: var(--success); padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600;">
+            ✓ ID akan di-generate otomatis oleh sistem
+          </div>
+          <input type="text" id="mkId" placeholder="K-001" style="font-family: monospace;">
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="mkNama" placeholder="Nama karyawan">
+        </div>
+        <div class="form-group">
+          <label>Divisi / Bagian</label>
+          <input type="text" id="mkBagian" placeholder="Contoh: Gudang">
+        </div>
+        <div class="form-group">
+          <label>Status Akun</label>
+          <select id="mkStatus">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif (Sembunyikan dari Web)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modalKaryawan')">Batal</button>
+        <button class="btn btn-primary" id="btnSaveKaryawan" onclick="saveKaryawan()">Simpan Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit Cuti (Bypass Limit) -->
+  <div class="modal-overlay" id="modalCuti">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="mcTitle">Edit Cuti (Admin Bypass)</h3>
+        <button class="btn btn-outline btn-icon" onclick="closeModal('modalCuti')"><svg width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg></button>
+      </div>
+      <div class="modal-body">
+        <div
+          style="background: var(--warning-light); color: #b45309; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;">
+          <strong>Hak Akses Admin:</strong> Anda dapat mengedit cuti meskipun batas waktu telah berakhir. Maksimal tetap
+          3 hari per bulan.
+        </div>
+        <input type="hidden" id="mcIdKaryawan">
+        <input type="hidden" id="mcNama">
+        <input type="hidden" id="mcBagian">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-weight: 600;" id="mcMonthLabel">Bulan</div>
+          <div style="font-size: 12px; font-weight: 600; color: var(--primary);" id="mcQuota">Terpilih: 0/3</div>
+        </div>
+
+        <div class="edit-cal-grid"
+          style="font-size: 11px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px;">
+          <div>MIN</div>
+          <div>SEN</div>
+          <div>SEL</div>
+          <div>RAB</div>
+          <div>KAM</div>
+          <div>JUM</div>
+          <div>SAB</div>
+        </div>
+        <div class="edit-cal-grid" id="editCalGrid">
+          <!-- Calendar injected -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modalCuti')">Batal</button>
+        <button class="btn btn-primary" id="btnSaveCuti" onclick="saveEditCuti()">Simpan Cuti</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- KONFIGURASI API ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzrrBT0OwuHlVLqLmk1Llc9Vz8B_Y2KLDk2bD290TjzlWnfE3p5s5vaL7YLxNzAE4WC/exec";
+
+    let dbKaryawan = [];
+    let rawCutiData = [];
+
+    // State Modal Cuti
+    let mcSelected = []; // Dates for the active edited user
+    let mcBooked = []; // Dates taken by their division
+
+    const mNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerHTML = msg;
+      container.appendChild(t);
+      setTimeout(() => { t.style.animation = 'slideDown 0.3s reverse forwards'; setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    function switchTab(id, el) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('active');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // --- INIT ---
+    function initFilters() {
+      const mSel = document.getElementById('filterMonth');
+      const ySel = document.getElementById('filterYear');
+      const d = new Date();
+      mSel.innerHTML = mNames.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${i === d.getMonth() ? 'selected' : ''}>${m}</option>`).join('');
+      const y = d.getFullYear();
+      ySel.innerHTML = `<option value="${y - 1}">${y - 1}</option><option value="${y}" selected>${y}</option><option value="${y + 1}">${y + 1}</option>`;
+    }
+
+    function loadData() {
+      document.getElementById('ganttGrid').innerHTML = '<div style="padding:40px; text-align:center;">Menyegarkan data...</div>';
+      fetch(`${SCRIPT_URL}?action=dashboard_data`)
+        .then(r => r.json())
+        .then(res => {
+          rawCutiData = res.data || [];
+          dbKaryawan = res.karyawan || []; // Array object lengkap
+          renderAll();
+        })
+        .catch(e => showToast('Gagal memuat data.', 'error'));
+    }
+
+    function renderAll() {
+      renderGantt();
+      renderKaryawan();
+    }
+
+    // --- TAB 1: GANTT & STATS (Grouped by Bagian) ---
+    function renderGantt() {
+      const fM = document.getElementById('filterMonth').value;
+      const fY = parseInt(document.getElementById('filterYear').value);
+      const totalDays = new Date(fY, parseInt(fM), 0).getDate();
+      const filteredCuti = rawCutiData.filter(d => String(d.bulan) === String(fM) && String(d.tahun) === String(fY));
+
+      // userCutiMap: { idKaryawan: [dayNumbers] }
+      const userCutiMap = {};
+      filteredCuti.forEach(c => {
+        if (!userCutiMap[c.idKaryawan]) userCutiMap[c.idKaryawan] = [];
+        userCutiMap[c.idKaryawan].push(parseInt(c.tanggal.split('-')[2]));
+      });
+
+      const activeKaryawan = dbKaryawan.filter(k => k.status.toLowerCase() !== 'nonaktif');
+
+      // bagianDayMap: { bagian: { dayNum: count } } for conflict detection
+      const bagianDayMap = {};
+      activeKaryawan.forEach(k => {
+        const dates = userCutiMap[k.id] || [];
+        dates.forEach(d => {
+          if (!bagianDayMap[k.bagian]) bagianDayMap[k.bagian] = {};
+          bagianDayMap[k.bagian][d] = (bagianDayMap[k.bagian][d] || 0) + 1;
+        });
+      });
+
+      // Header row
+      let html = `<div class="g-row"><div class="g-name" style="color:var(--text-muted);font-size:11px;">KARYAWAN</div><div class="g-days">`;
+      for (let d = 1; d <= totalDays; d++) {
+        const isWknd = new Date(fY, parseInt(fM) - 1, d).getDay() % 6 === 0;
+        html += `<div class="g-day header" style="${isWknd ? 'color:#94a3b8;' : ''}">${d}</div>`;
+      }
+      html += `</div></div>`;
+
+      let totalCuti = 0, totalPenuh = 0, availablePeople = 0;
+
+      // Group by bagian
+      const bagianGroups = {};
+      activeKaryawan.forEach(k => {
+        if (!bagianGroups[k.bagian]) bagianGroups[k.bagian] = [];
+        bagianGroups[k.bagian].push(k);
+      });
+
+      Object.keys(bagianGroups).sort().forEach(bagian => {
+        // Bagian section label
+        html += `<div class="g-row g-section-row">`;
+        html += `<div class="g-name g-section-label">${bagian}</div>`;
+        html += `<div class="g-days">`;
+        for (let d = 1; d <= totalDays; d++) {
+          html += `<div class="g-day g-section-bar"></div>`;
+        }
+        html += `</div></div>`;
+
+        bagianGroups[bagian].forEach(k => {
+          const dates = userCutiMap[k.id] || [];
+          totalCuti += dates.length;
+          if (dates.length >= 3) totalPenuh++;
+          if (dates.length === 0) availablePeople++;
+
+          html += `<div class="g-row"><div class="g-name">${k.nama}</div><div class="g-days">`;
+
+          for (let d = 1; d <= totalDays; d++) {
+            const isWknd = new Date(fY, parseInt(fM) - 1, d).getDay() % 6 === 0;
+            const fullDate = `${fY}-${fM}-${String(d).padStart(2, '0')}`;
+            const countBagianDay = (bagianDayMap[bagian] || {})[d] || 0;
+
+            if (dates.includes(d)) {
+              const isConflict = countBagianDay > 1;
+              html += `<div class="g-day leave${isConflict ? ' conflict' : ''}" data-tooltip="${isConflict ? '⚠ KONFLIK bagian!' : bagian}" onclick="toggleGanttCuti('${k.id}','${k.nama}','${k.bagian}','${fullDate}')"></div>`;
+            } else {
+              const divBooked = countBagianDay >= 1;
+              if (divBooked) {
+                html += `<div class="g-day div-booked ${isWknd ? 'weekend' : ''}" title="Slot ${bagian} hari ini terisi" onclick="showToast('Bagian ${bagian} sudah ada yang cuti hari ini.','error')"></div>`;
+              } else {
+                html += `<div class="g-day ${isWknd ? 'weekend' : ''}" style="cursor:pointer;" onclick="toggleGanttCuti('${k.id}','${k.nama}','${k.bagian}','${fullDate}')" title="Klik untuk tambah cuti"></div>`;
+              }
+            }
+          }
+          html += `</div></div>`;
+        });
+      });
+
+      document.getElementById('ganttGrid').innerHTML = html;
+      document.getElementById('statCuti').textContent = totalCuti;
+      document.getElementById('statFull').textContent = totalPenuh;
+      document.getElementById('statHadir').textContent = availablePeople;
+    }
+
+    // --- TOGGLE GANTT CUTI DIRECTLY ---
+    function toggleGanttCuti(idKaryawan, nama, bagian, fullDate) {
+      const payload = {
+        action: 'toggle_cuti',
+        isAdmin: true,
+        idKaryawan: idKaryawan,
+        nama: nama,
+        bagian: bagian,
+        tanggalToggle: fullDate
+      };
+
+      showToast(`Memproses ${nama} di tanggal ${fullDate}...`, 'info');
+
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(r => r.json())
+        .then(res => {
+          if (res.result === 'success') {
+            showToast(res.added ? 'Cuti ditambahkan.' : 'Cuti dibatalkan.', 'success');
+            loadData(); // Segarkan view
+          } else {
+            showToast(res.message, 'error');
+          }
+        })
+        .catch(e => showToast('Gagal terhubung ke server.', 'error'));
+    }
+
+    // --- TAB 2: MANAJEMEN KARYAWAN ---
+    function renderKaryawan() {
+      const q = document.getElementById('searchKaryawan').value.toLowerCase();
+      const tbody = document.getElementById('karyawanTable');
+
+      const rows = dbKaryawan.filter(k => k.nama.toLowerCase().includes(q) || k.bagian.toLowerCase().includes(q)).map(k => {
+        const isAktif = k.status.toLowerCase() !== 'nonaktif';
+        return `
+          <tr>
+            <td style="font-family:monospace; color:var(--text-muted);">${k.id}</td>
+            <td style="font-weight: 600;">${k.nama}</td>
+            <td><span class="badge badge-primary">${k.bagian}</span></td>
+            <td><span class="badge ${isAktif ? 'badge-success' : 'badge-danger'}">${k.status}</span></td>
+            <td style="text-align: right; white-space: nowrap;">
+              <button class="btn btn-outline btn-icon" title="Edit Jadwal Cuti (Admin)" onclick="openEditCuti('${k.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              <button class="btn btn-outline btn-icon" title="Edit Profil" onclick="editKaryawan('${k.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+              <button class="btn btn-danger btn-icon" title="Hapus Karyawan" onclick="deleteKaryawan('${k.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = rows.join('') || `<tr><td colspan="5" style="text-align:center; padding: 40px; color: gray;">Karyawan tidak ditemukan.</td></tr>`;
+    }
+
+    // --- CRUD KARYAWAN ---
+    function openKaryawanModal() {
+      document.getElementById('mkTitle').textContent = 'Tambah Karyawan Baru';
+      document.getElementById('mkIsNew').value = 'true';
+      document.getElementById('mkId').value = '';
+      document.getElementById('mkId').style.display = 'none';
+      document.getElementById('mkIdDisplay').style.display = 'block';
+      document.getElementById('mkNama').value = '';
+      document.getElementById('mkBagian').value = '';
+      document.getElementById('mkStatus').value = 'Aktif';
+      openModal('modalKaryawan');
+    }
+
+    function editKaryawan(id) {
+      const k = dbKaryawan.find(x => String(x.id) === String(id));
+      if (!k) { showToast('Data karyawan tidak ditemukan.', 'error'); return; }
+      document.getElementById('mkTitle').textContent = 'Edit Data Karyawan';
+      document.getElementById('mkIsNew').value = 'false';
+      document.getElementById('mkId').value = k.id;
+      document.getElementById('mkId').style.display = 'block';
+      document.getElementById('mkId').disabled = true;
+      document.getElementById('mkIdDisplay').style.display = 'none';
+      document.getElementById('mkNama').value = k.nama;
+      document.getElementById('mkBagian').value = k.bagian;
+      document.getElementById('mkStatus').value = k.status;
+      openModal('modalKaryawan');
+    }
+
+    function saveKaryawan() {
+      const payload = {
+        action: 'save_karyawan',
+        isNew: document.getElementById('mkIsNew').value === 'true',
+        idKaryawan: document.getElementById('mkId').value,
+        nama: document.getElementById('mkNama').value,
+        bagian: document.getElementById('mkBagian').value,
+        status: document.getElementById('mkStatus').value
+      };
+
+      if (!payload.nama || !payload.bagian) return showToast('Nama dan Bagian wajib diisi!', 'error');
+
+      const btn = document.getElementById('btnSaveKaryawan');
+      btn.innerHTML = '<span class="loader"></span> Menyimpan...';
+      btn.disabled = true;
+
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(res => {
+        btn.innerHTML = 'Simpan Data'; btn.disabled = false;
+        if (res.result === 'success') { showToast('Berhasil disimpan!', 'success'); closeModal('modalKaryawan'); loadData(); }
+        else showToast(res.message, 'error');
+      }).catch(e => { btn.innerHTML = 'Simpan Data'; btn.disabled = false; showToast('Gagal terhubung.', 'error'); });
+    }
+
+    function deleteKaryawan(id) {
+      if (!confirm(`Yakin ingin MENGHAPUS karyawan dengan ID ${id} secara permanen dari database?`)) return;
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete_karyawan', idKaryawan: id }) })
+        .then(r => r.json()).then(res => {
+          if (res.result === 'success') { showToast('Karyawan dihapus.', 'success'); loadData(); }
+        });
+    }
+
+    // --- ADMIN EDIT CUTI ---
+    function openEditCuti(idKaryawan) {
+      const k = dbKaryawan.find(x => String(x.id) === String(idKaryawan));
+      if (!k) { showToast('Data karyawan tidak ditemukan.', 'error'); return; }
+
+      const fM = document.getElementById('filterMonth').value;
+      const fY = document.getElementById('filterYear').value;
+
+      document.getElementById('mcIdKaryawan').value = k.id;
+      document.getElementById('mcNama').value = k.nama;
+      document.getElementById('mcBagian').value = k.bagian;
+      document.getElementById('mcTitle').innerHTML = `Edit Cuti: <span style="color:var(--primary)">${k.nama}</span>`;
+      document.getElementById('mcMonthLabel').textContent = `${mNames[parseInt(fM) - 1]} ${fY}`;
+
+      // Load their full leave dates from server (because rawCutiData only has this month)
+      mcSelected = [];
+      mcBooked = [];
+      openModal('modalCuti');
+      document.getElementById('editCalGrid').innerHTML = '<div style="grid-column: span 7; padding:20px;">Memuat riwayat...</div>';
+
+      Promise.all([
+        fetch(`${SCRIPT_URL}?action=booked&bagian=${encodeURIComponent(k.bagian)}&idKaryawan=${encodeURIComponent(k.id)}`).then(r => r.json()),
+        fetch(`${SCRIPT_URL}?action=riwayat&idKaryawan=${encodeURIComponent(k.id)}`).then(r => r.json())
+      ]).then(([bRes, rRes]) => {
+        mcBooked = bRes.booked || [];
+        // Extract ONLY dates for this specific month from their full riwayat
+        const prefix = `${fY}-${fM}`;
+        const fullRiwayat = (rRes.riwayat && rRes.riwayat.tanggal) ? rRes.riwayat.tanggal : [];
+        // Note: For admin override, we must preserve dates from OTHER months!
+        // We store full riwayat, but UI only manipulates current month.
+        mcFullRiwayat = fullRiwayat;
+
+        renderEditCal();
+      });
+    }
+
+    let mcFullRiwayat = []; // Holds dates for all months to avoid wiping other months when editing one month
+
+    function renderEditCal() {
+      const fM = document.getElementById('filterMonth').value;
+      const fY = parseInt(document.getElementById('filterYear').value);
+      const prefix = `${fY}-${fM}`;
+
+      const grid = document.getElementById('editCalGrid');
+      grid.innerHTML = '';
+
+      const firstDay = new Date(fY, parseInt(fM) - 1, 1).getDay();
+      const totalDays = new Date(fY, parseInt(fM), 0).getDate();
+
+      // Count how many selected in THIS month
+      const selectedThisMonth = mcFullRiwayat.filter(d => d.startsWith(prefix));
+      document.getElementById('mcQuota').textContent = `Terpilih: ${selectedThisMonth.length}/3`;
+
+      for (let i = 0; i < firstDay; i++) {
+        const d = document.createElement('div'); d.className = 'edit-cal-day empty'; grid.appendChild(d);
+      }
+
+      for (let d = 1; d <= totalDays; d++) {
+        const key = `${prefix}-${String(d).padStart(2, '0')}`;
+        const el = document.createElement('div');
+        el.className = 'edit-cal-day';
+        el.textContent = d;
+
+        if (mcBooked.includes(key)) {
+          el.classList.add('booked');
+          el.title = "Diambil rekan divisi";
+        } else {
+          if (mcFullRiwayat.includes(key)) el.classList.add('selected');
+          el.onclick = () => {
+            if (mcFullRiwayat.includes(key)) {
+              mcFullRiwayat = mcFullRiwayat.filter(k => k !== key);
+            } else {
+              if (mcFullRiwayat.filter(d => d.startsWith(prefix)).length >= 3) {
+                return showToast('Kuota 3 hari tercapai!', 'error');
+              }
+              mcFullRiwayat.push(key);
+            }
+            renderEditCal();
+          };
+        }
+        grid.appendChild(el);
+      }
+    }
+
+    function saveEditCuti() {
+      const payload = {
+        action: 'simpan_cuti',
+        isAdmin: true, // Bypass lock
+        idKaryawan: document.getElementById('mcIdKaryawan').value,
+        nama: document.getElementById('mcNama').value,
+        bagian: document.getElementById('mcBagian').value,
+        tanggal: mcFullRiwayat
+      };
+
+      const btn = document.getElementById('btnSaveCuti');
+      btn.innerHTML = '<span class="loader"></span>'; btn.disabled = true;
+
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(r => r.json()).then(res => {
+          btn.innerHTML = 'Simpan Cuti'; btn.disabled = false;
+          if (res.result === 'success') { showToast('Cuti diperbarui (Admin Override)', 'success'); closeModal('modalCuti'); loadData(); }
+          else showToast(res.message, 'error');
+        }).catch(e => { btn.innerHTML = 'Simpan Cuti'; btn.disabled = false; });
+    }
+
+    // --- EXPORT CSV ---
+    function exportToCSV() {
+      if (rawCutiData.length === 0) return showToast('Tidak ada data untuk di-export.', 'error');
+
+      const headers = ['ID Karyawan', 'Nama', 'Bagian', 'Tanggal Cuti', 'Bulan', 'Tahun'];
+      let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
+      rawCutiData.forEach(row => {
+        const line = [
+          row.idKaryawan,
+          `"${row.nama}"`,
+          `"${row.bagian}"`,
+          row.tanggal,
+          row.bulan,
+          row.tahun
+        ].join(",");
+        csvContent += line + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      const filename = `Rekap_Cuti_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast('File CSV berhasil diunduh.', 'success');
+    }
+
+    function exportToImage() {
+      const ganttGrid = document.getElementById('ganttGrid');
+      if (!ganttGrid) return showToast('Gantt view tidak ditemukan.', 'error');
+      
+      const btn = document.getElementById('btnExportImage');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="loader" style="width:14px; height:14px; border-width:2px; vertical-align: middle;"></span> <span style="vertical-align: middle;">Memproses...</span>';
+      btn.disabled = true;
+
+      // Get Month & Year
+      const fM = document.getElementById('filterMonth').value;
+      const fY = document.getElementById('filterYear').value;
+      const mNamesLocal = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const monthName = mNamesLocal[parseInt(fM) - 1];
+
+      // Create an export container
+      const exportContainer = document.createElement('div');
+      exportContainer.style.padding = '40px';
+      exportContainer.style.background = '#ffffff';
+      exportContainer.style.width = 'fit-content';
+      exportContainer.style.minWidth = '1000px';
+      exportContainer.style.fontFamily = "'Outfit', sans-serif";
+      exportContainer.style.position = 'absolute';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.top = '0';
+      
+      // Add Header
+      const header = document.createElement('div');
+      header.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px;">
+          <div>
+            <h2 style="margin: 0 0 4px 0; color: #0f172a; font-size: 28px; font-weight: 700;">Jadwal Cuti Karyawan</h2>
+            <p style="margin: 0; color: #64748b; font-size: 15px; font-weight: 500;">Periode: ${monthName} ${fY}</p>
+          </div>
+          <div style="text-align: right;">
+            <p style="margin: 0; color: #0f172a; font-size: 18px; font-weight: 700;">HR Cuti PRO</p>
+            <p style="margin: 0; color: #64748b; font-size: 13px;">Generated on: ${new Date().toLocaleDateString('id-ID')}</p>
+          </div>
+        </div>
+      `;
+      exportContainer.appendChild(header);
+
+      // Add Legend
+      const legend = document.createElement('div');
+      legend.style.display = 'flex';
+      legend.style.gap = '20px';
+      legend.style.marginBottom = '24px';
+      legend.style.fontSize = '13px';
+      legend.style.fontWeight = '600';
+      legend.style.color = '#475569';
+      legend.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:16px; height:16px; background:var(--primary, #2563eb); border-radius:4px;"></div>
+          <span>Cuti Disetujui</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:16px; height:16px; background:var(--danger, #ef4444); border-radius:4px; box-shadow:inset 0 0 0 2px #fff, 0 0 0 2px var(--danger, #ef4444);"></div>
+          <span>Konflik Jadwal</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:16px; height:16px; background:#fef3c7; border-radius:4px;"></div>
+          <span>Divisi Penuh</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:16px; height:16px; background:#e2e8f0; border-radius:4px;"></div>
+          <span>Akhir Pekan</span>
+        </div>
+      `;
+      exportContainer.appendChild(legend);
+
+      // Clone Gantt Grid
+      const clonedGrid = ganttGrid.cloneNode(true);
+      clonedGrid.style.minWidth = 'unset'; // let it take the container's space
+      clonedGrid.style.width = '100%';
+      exportContainer.appendChild(clonedGrid);
+
+      // Temporarily append to body to render
+      document.body.appendChild(exportContainer);
+
+      html2canvas(exportContainer, {
+        backgroundColor: '#ffffff',
+        scale: 2 // High resolution
+      }).then(canvas => {
+        document.body.removeChild(exportContainer);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        const filename = `Jadwal_Cuti_${monthName}_${fY}.png`;
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        showToast('Gambar jadwal berhasil diunduh.', 'success');
+      }).catch(err => {
+        if(document.body.contains(exportContainer)) document.body.removeChild(exportContainer);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showToast('Gagal mengexport gambar.', 'error');
+        console.error(err);
+      });
+    }
+
+    // --- SETUP FUNCTIONS ---
+    function loadSetup() {
+      fetch(`${SCRIPT_URL}?action=init`)
+        .then(r => r.json())
+        .then(res => {
+          const bw = res.batasWaktu;
+          const infoEl = document.getElementById('setupCurrentInfo');
+          if (bw) {
+            const dt = new Date(bw);
+            infoEl.textContent = `Batas aktif: ${dt.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}`;
+            infoEl.style.background = new Date() > dt ? 'var(--danger-light)' : 'var(--success-light)';
+            infoEl.style.color = new Date() > dt ? 'var(--danger)' : 'var(--success)';
+            // Pre-fill input
+            const local = new Date(dt - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            document.getElementById('setupDeadline').value = local;
+          } else {
+            infoEl.textContent = 'Tidak ada batas waktu — sistem terbuka untuk semua.';
+            infoEl.style.background = 'var(--success-light)';
+            infoEl.style.color = 'var(--success)';
+          }
+        }).catch(() => { document.getElementById('setupCurrentInfo').textContent = 'Gagal memuat pengaturan.'; });
+    }
+
+    function saveSetup() {
+      const val = document.getElementById('setupDeadline').value;
+      if (!val) return showToast('Pilih tanggal dan waktu terlebih dahulu.', 'error');
+      const btn = document.getElementById('btnSaveSetup');
+      btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Menyimpan...';
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'save_setup', batasWaktu: val }) })
+        .then(r => r.json())
+        .then(res => {
+          btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Batas Waktu';
+          if (res.result === 'success') { showToast('Batas waktu berhasil disimpan!', 'success'); loadSetup(); }
+          else showToast(res.message || 'Gagal menyimpan.', 'error');
+        }).catch(() => { btn.disabled = false; showToast('Gagal terhubung.', 'error'); });
+    }
+
+    function clearDeadline() {
+      if (!confirm('Hapus batas waktu? Karyawan bisa input kapan saja.')) return;
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'save_setup', batasWaktu: '' }) })
+        .then(r => r.json())
+        .then(res => { if (res.result === 'success') { showToast('Batas waktu dihapus. Sistem terbuka.', 'success'); loadSetup(); } });
+    }
+
+    // Trigger loadSetup when user opens Setup tab
+    const _origSwitchTab = switchTab;
+    window.switchTab = function (id, el) { _origSwitchTab(id, el); if (id === 'setup') loadSetup(); };
+
+    // Init
+    initFilters();
+    loadData();
+  </script>
+</body>
+
+</html>
