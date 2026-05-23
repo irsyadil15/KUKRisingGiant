@@ -13,7 +13,7 @@
 // -------------------------------------------------------------------------
 // 1. TAMBAHKAN LOGIKA INI DI DALAM FUNGSI doPost(e)
 // Cari fungsi doPost(e) Anda yang sudah ada, lalu di dalam percabangan
-// 'action', tambahkan kode untuk 'absen_bulk':
+// 'action', tambahkan kode untuk 'absen_bulk' dan 'update_absen_status':
 // -------------------------------------------------------------------------
 
 /*
@@ -31,6 +31,9 @@ function doPost(e) {
   // ---> TAMBAHKAN BLOK KODE INI: <---
   if (action === 'absen_bulk') {
     return handleAbsenBulk(data);
+  }
+  if (action === 'update_absen_status') {
+    return updateAbsenStatus(data);
   }
   // ----------------------------------
 
@@ -164,6 +167,78 @@ function getRekapAbsen() {
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
       result: 'error', 
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// -------------------------------------------------------------------------
+// FUNGSI: Update status absen individual (dipanggil dari dashboard admin)
+// Mencari baris berdasarkan idKaryawan + waktu (timestamp ISO), lalu
+// mengupdate kolom Status (kolom ke-5).
+// -------------------------------------------------------------------------
+function updateAbsenStatus(data) {
+  try {
+    const sheet = getOrCreateAbsenSheet();
+    const idKaryawan = String(data.idKaryawan);
+    const waktuTarget = String(data.waktu);
+    const newStatus = data.newStatus;
+
+    if (!idKaryawan || !waktuTarget || !newStatus) {
+      throw new Error('Parameter tidak lengkap: idKaryawan, waktu, newStatus diperlukan.');
+    }
+
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      throw new Error('Sheet absen masih kosong, tidak ada data untuk diupdate.');
+    }
+
+    // Kolom: A=Waktu(1), B=ID(2), C=Nama(3), D=Bagian(4), E=Status(5)
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, 5);
+    const values = dataRange.getValues();
+
+    let found = false;
+    for (let i = 0; i < values.length; i++) {
+      const rowWaktu = String(values[i][0]);
+      const rowId    = String(values[i][1]);
+
+      // Cocokkan berdasarkan ID karyawan dan waktu
+      if (rowId === idKaryawan && rowWaktu === waktuTarget) {
+        // Update kolom Status (kolom ke-5, index sheet = 5)
+        sheet.getRange(i + 2, 5).setValue(newStatus);
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      // Fallback: cari hanya berdasarkan ID karyawan dan ambil baris terbaru hari yang sama
+      const targetDate = waktuTarget.substring(0, 10); // YYYY-MM-DD
+      for (let i = values.length - 1; i >= 0; i--) {
+        const rowWaktu = String(values[i][0]);
+        const rowId    = String(values[i][1]);
+        const rowDate  = rowWaktu.length >= 10 ? rowWaktu.substring(0, 10) : '';
+
+        if (rowId === idKaryawan && rowDate === targetDate) {
+          sheet.getRange(i + 2, 5).setValue(newStatus);
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      throw new Error('Data absen tidak ditemukan untuk karyawan dan tanggal tersebut.');
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      result: 'success',
+      message: 'Status absen berhasil diperbarui.'
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      result: 'error',
       message: error.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }

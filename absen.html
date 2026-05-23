@@ -255,6 +255,57 @@
       margin-bottom: 12px;
     }
 
+    .already-done-banner {
+      background: var(--success-light);
+      border: 1px solid var(--success);
+      border-radius: 14px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .already-done-banner .icon {
+      width: 48px;
+      height: 48px;
+      background: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: white;
+    }
+
+    .already-done-banner h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #065f46;
+      margin-bottom: 4px;
+    }
+
+    .already-done-banner p {
+      font-size: 13px;
+      color: #047857;
+      margin: 0;
+    }
+
+    .already-done-banner a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .already-done-banner a:hover {
+      text-decoration: underline;
+    }
+
+    /* Lock overlay on table rows */
+    .table-locked td {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
     .bottom-bar {
       position: fixed;
       bottom: 0;
@@ -468,18 +519,39 @@
       const loadingRow = '<tr><td colspan="2" style="text-align:center; padding:40px;"><div style="color:var(--text-muted);">Memuat daftar karyawan...</div></td></tr>';
       document.getElementById('karyawanList').innerHTML = loadingRow;
 
-      // Fetch karyawan list AND leave data in parallel
+      const today = getTodayStr();
+
+      // Fetch karyawan list, leave data, AND today's absen in parallel
       Promise.all([
         fetch(`${SCRIPT_URL}?action=init`).then(r => r.json()),
-        fetch(`${SCRIPT_URL}?action=dashboard_data`).then(r => r.json())
+        fetch(`${SCRIPT_URL}?action=dashboard_data`).then(r => r.json()),
+        fetch(`${SCRIPT_URL}?action=rekapAbsen`).then(r => r.json())
       ])
-      .then(([initRes, dashRes]) => {
+      .then(([initRes, dashRes, absenRes]) => {
         dbKaryawan = (initRes.karyawan || []).filter(k =>
           String(k.status || 'Aktif').toLowerCase() !== 'nonaktif'
         );
 
+        // Cek apakah absen hari ini sudah pernah diisi
+        const absenData = absenRes.data || [];
+        const absenHariIni = absenData.filter(r => {
+          // waktu bisa ISO string; ambil tanggal-nya saja
+          try {
+            const tgl = new Date(r.waktu);
+            const y = tgl.getFullYear();
+            const m = String(tgl.getMonth() + 1).padStart(2, '0');
+            const d = String(tgl.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}` === today;
+          } catch { return false; }
+        });
+
+        if (absenHariIni.length > 0) {
+          // Sudah diisi hari ini — tampilkan pesan dan kunci form
+          showAlreadyDone(today);
+          return;
+        }
+
         // Build set of employee IDs who are on leave today
-        const today = getTodayStr();
         const cutiHariIni = new Set();
         if (dashRes.result === 'success' && Array.isArray(dashRes.data)) {
           dashRes.data.forEach(entry => {
@@ -495,6 +567,35 @@
         document.getElementById('karyawanList').innerHTML = '<tr><td colspan="2" style="text-align:center; color:red;">Gagal memuat data server.</td></tr>';
         showToast('Gagal memuat data server.', 'error');
       });
+    }
+
+    function showAlreadyDone(todayStr) {
+      // Ganti isi tabel dengan pesan
+      document.getElementById('karyawanList').innerHTML = `
+        <tr><td colspan="2" style="padding: 32px 16px;">
+          <div class="already-done-banner">
+            <div class="icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <h3>Absen hari ini sudah tercatat!</h3>
+              <p>Rekap briefing tanggal <strong>${todayStr}</strong> sudah diisi.<br>
+                Untuk mengubah status karyawan, gunakan tab
+                <a href="dashboard.html" target="_blank">📋 Dashboard → Rekap Absen Pagi</a>.
+              </p>
+            </div>
+          </div>
+        </td></tr>
+      `;
+
+      // Kunci tombol submit
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.style.background = 'var(--success)';
+      document.getElementById('btnText').textContent = '✓ Absen Hari Ini Sudah Diisi';
+
+      // Sembunyikan cuti section
+      document.getElementById('cutiSection').style.display = 'none';
     }
 
     function renderKaryawanList(cutiHariIni = new Set()) {

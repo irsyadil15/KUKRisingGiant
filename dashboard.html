@@ -295,6 +295,16 @@
       color: var(--danger);
     }
 
+    .badge-warning {
+      background: var(--warning-light);
+      color: var(--warning);
+    }
+
+    .badge-info {
+      background: #e0f2fe;
+      color: #0ea5e9;
+    }
+
     /* Master Calendar Gantt */
     .gantt-wrapper {
       overflow-x: auto;
@@ -801,11 +811,12 @@
                 <th>Nama Karyawan</th>
                 <th>Bagian / Divisi</th>
                 <th>Status</th>
+                <th style="text-align:right;">Aksi</th>
               </tr>
             </thead>
             <tbody id="absenTableBody">
               <tr>
-                <td colspan="4" style="text-align:center;">Memuat data absensi...</td>
+                <td colspan="5" style="text-align:center;">Memuat data absensi...</td>
               </tr>
             </tbody>
           </table>
@@ -813,6 +824,41 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal Edit Status Absen -->
+  <div class="modal-overlay" id="modalEditAbsen">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Edit Status Absen</h3>
+        <button class="btn btn-outline btn-icon" onclick="closeModal('modalEditAbsen')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="eaRowIndex">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+          Ubah status kehadiran untuk <strong id="eaNama"></strong> pada tanggal <strong id="eaTanggal"></strong>.
+        </p>
+        <div class="form-group">
+          <label>Status Kehadiran</label>
+          <select id="eaStatus" style="width:100%;">
+            <option value="Hadir">Hadir</option>
+            <option value="Ghoib">Ghoib</option>
+            <option value="Sakit">Sakit</option>
+            <option value="Izin">Izin</option>
+            <option value="Cuti">Cuti</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modalEditAbsen')">Batal</button>
+        <button class="btn btn-primary" id="btnSaveEditAbsen" onclick="saveEditAbsen()">Simpan</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Edit Karyawan -->
@@ -1471,11 +1517,11 @@
     function renderAbsen() {
       const tbody = document.getElementById('absenTableBody');
       if (rawAbsenData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data absen.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data absen.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = rawAbsenData.map(row => {
+      tbody.innerHTML = rawAbsenData.map((row, index) => {
         const d = new Date(row.waktu);
         const timeStr = d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).replace(/\./g, ':');
 
@@ -1483,6 +1529,7 @@
         if (row.status === 'Ghoib') badgeClass = 'badge-danger';
         else if (row.status === 'Sakit') badgeClass = 'badge-warning';
         else if (row.status === 'Izin') badgeClass = 'badge-info';
+        else if (row.status === 'Cuti') badgeClass = 'badge-primary';
 
         return `
           <tr>
@@ -1490,9 +1537,63 @@
             <td style="font-weight:600; color:var(--text);">${row.nama}</td>
             <td>${row.bagian || '-'}</td>
             <td><span class="badge ${badgeClass}">${row.status || 'Hadir'}</span></td>
+            <td style="text-align:right;">
+              <button class="btn btn-outline btn-icon" title="Edit Status" onclick="openEditAbsen(${index})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </button>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    function openEditAbsen(rowIndex) {
+      const row = rawAbsenData[rowIndex];
+      if (!row) return;
+
+      const d = new Date(row.waktu);
+      const dateStr = d.toLocaleDateString('id-ID', { dateStyle: 'medium' });
+
+      document.getElementById('eaRowIndex').value = rowIndex;
+      document.getElementById('eaNama').textContent = row.nama;
+      document.getElementById('eaTanggal').textContent = dateStr;
+      document.getElementById('eaStatus').value = row.status || 'Hadir';
+      openModal('modalEditAbsen');
+    }
+
+    function saveEditAbsen() {
+      const rowIndex = parseInt(document.getElementById('eaRowIndex').value);
+      const newStatus = document.getElementById('eaStatus').value;
+      const row = rawAbsenData[rowIndex];
+      if (!row) return;
+
+      const btn = document.getElementById('btnSaveEditAbsen');
+      btn.innerHTML = '<span class="loader"></span>'; btn.disabled = true;
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'update_absen_status',
+          idKaryawan: row.idKaryawan,
+          waktu: row.waktu,
+          newStatus: newStatus
+        })
+      })
+        .then(r => r.json())
+        .then(res => {
+          btn.innerHTML = 'Simpan'; btn.disabled = false;
+          if (res.result === 'success') {
+            showToast(`Status ${row.nama} diubah ke "${newStatus}"`, 'success');
+            closeModal('modalEditAbsen');
+            loadAbsen(); // Refresh tabel
+          } else {
+            showToast(res.message || 'Gagal mengubah status.', 'error');
+          }
+        })
+        .catch(() => { btn.innerHTML = 'Simpan'; btn.disabled = false; showToast('Gagal terhubung ke server.', 'error'); });
     }
 
     function exportAbsenCSV() {
